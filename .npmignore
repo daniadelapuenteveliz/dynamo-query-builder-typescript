@@ -1,0 +1,59 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Development files
+.eslintrc.js
+jest.config.js
+tsconfig.json
+.gitignore
+.npmignore
+
+# Test files
+__tests__/
+**/*.test.ts
+**/*.spec.ts
+coverage/
+
+# Development dependencies
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env*
+!.env.example
+
+# Documentation source (keep built docs)
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts (keep only the compiled lib)
+!lib/
+build/
+dist/
