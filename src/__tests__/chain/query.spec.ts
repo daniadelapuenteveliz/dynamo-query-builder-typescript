@@ -290,7 +290,6 @@ describe('Query', () => {
         'SK is not defined in the schema'
       );
     });
-
   });
 
   describe('whereSKBetween', () => {

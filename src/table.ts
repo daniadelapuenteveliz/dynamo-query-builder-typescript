@@ -23,7 +23,7 @@ import {
   DescribeTableCommandOutput,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoErrorFactory } from './types/errors';
-import { KeySchema, SearchParams, } from './types/types';
+import { KeySchema, SearchParams } from './types/types';
 import { Query } from './query/query';
 import { Scan } from './query/scan';
 import {
@@ -42,7 +42,11 @@ import { SchemaFormatter } from './formatting/schemaFormatter';
 
 // ----------------------------- Implementation -----------------------------
 
-export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec> {
+export class Table<
+  PK extends KeyRec,
+  SK extends KeyRec,
+  DataDto extends DataRec,
+> {
   private schemaFormatter: SchemaFormatter<PK, SK, DataDto>;
   constructor(
     private client: DynamoDBClient,
@@ -370,20 +374,31 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
     if ('lowerThan' in skCondition && skCondition.lowerThan !== undefined) {
       return query.whereSKLowerThan(skCondition.lowerThan as SK);
     }
-    if ('greaterThanOrEqual' in skCondition && skCondition.greaterThanOrEqual !== undefined) {
-      return query.whereSKGreaterThanOrEqual(skCondition.greaterThanOrEqual as SK);
+    if (
+      'greaterThanOrEqual' in skCondition &&
+      skCondition.greaterThanOrEqual !== undefined
+    ) {
+      return query.whereSKGreaterThanOrEqual(
+        skCondition.greaterThanOrEqual as SK
+      );
     }
-    if ('lowerThanOrEqual' in skCondition && skCondition.lowerThanOrEqual !== undefined) {
+    if (
+      'lowerThanOrEqual' in skCondition &&
+      skCondition.lowerThanOrEqual !== undefined
+    ) {
       return query.whereSKLowerThanOrEqual(skCondition.lowerThanOrEqual as SK);
     }
     if ('beginsWith' in skCondition && skCondition.beginsWith !== undefined) {
       return query.whereSKBeginsWith(skCondition.beginsWith as Partial<SK>);
     }
     if ('between' in skCondition && skCondition.between !== undefined) {
-      const between = skCondition.between as { from: Partial<SK>; to: Partial<SK> };
+      const between = skCondition.between as {
+        from: Partial<SK>;
+        to: Partial<SK>;
+      };
       return query.whereSKBetween(between.from, between.to);
     }
-    
+
     // Si no coincide con ninguna condición conocida, asumir que es un SK directo
     return query.whereSKequal(skCondition as SK);
   }
@@ -598,7 +613,10 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
     let lastEvaluatedKey: KeyRec | undefined = undefined;
     let totalDeleted = 0;
     while (!deleteParams.limit || totalDeleted < deleteParams.limit) {
-      const qparams: QueryParams<PK, DataDto> = { pk: deleteParams.pk, limit: searchLimit };
+      const qparams: QueryParams<PK, DataDto> = {
+        pk: deleteParams.pk,
+        limit: searchLimit,
+      };
       let query: Query<PK, SK, DataDto> = this.query(qparams);
 
       if (this.schemaFormatter.getSK() && deleteParams.skCondition) {
@@ -621,27 +639,39 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
 
       // Process items in batches and delete immediately
       let itemsToProcess = result.items;
-      if (deleteParams.limit && totalDeleted + result.items.length > deleteParams.limit) {
-        itemsToProcess = result.items.slice(0, deleteParams.limit - totalDeleted);
+      if (
+        deleteParams.limit &&
+        totalDeleted + result.items.length > deleteParams.limit
+      ) {
+        itemsToProcess = result.items.slice(
+          0,
+          deleteParams.limit - totalDeleted
+        );
       }
 
       // Delete in batches
-      const batchOfKeys = itemsToProcess.map((item) => {
+      const batchOfKeys = itemsToProcess.map(item => {
         const aux: any = {
-          pk: this.schemaFormatter.formatPKFromItem(item as ItemOf<PK, SK, DataDto>),
-        }
+          pk: this.schemaFormatter.formatPKFromItem(
+            item as ItemOf<PK, SK, DataDto>
+          ),
+        };
         if (this.schemaFormatter.getSK()) {
-          aux.sk = this.schemaFormatter.formatSKFromItem(item as ItemOf<PK, SK, DataDto>) as SK extends never ? undefined : SK;
+          aux.sk = this.schemaFormatter.formatSKFromItem(
+            item as ItemOf<PK, SK, DataDto>
+          ) as SK extends never ? undefined : SK;
         }
         return aux as { pk: PK; sk: SK extends never ? undefined : SK };
       });
-      
+
       try {
         await this.deleteBatch(batchOfKeys);
         totalDeleted += itemsToProcess.length;
       } catch (error) {
         // If batch deletion fails, throw error with context
-        throw new Error(`Failed to delete batch: ${error instanceof Error ? error.message : String(error)}`);
+        throw new Error(
+          `Failed to delete batch: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
 
       if (!result.hasNext) {
@@ -680,12 +710,16 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
       }
 
       // Delete in batches
-      const batchOfKeys = result.items.map((item) => {
+      const batchOfKeys = result.items.map(item => {
         const aux: any = {
-          pk: this.schemaFormatter.formatPKFromItem(item as ItemOf<PK, SK, DataDto>),
+          pk: this.schemaFormatter.formatPKFromItem(
+            item as ItemOf<PK, SK, DataDto>
+          ),
         };
         if (this.schemaFormatter.getSK()) {
-          aux.sk = this.schemaFormatter.formatSKFromItem(item as ItemOf<PK, SK, DataDto>) as SK extends never ? undefined : SK;
+          aux.sk = this.schemaFormatter.formatSKFromItem(
+            item as ItemOf<PK, SK, DataDto>
+          ) as SK extends never ? undefined : SK;
         }
         return aux as { pk: PK; sk: SK extends never ? undefined : SK };
       });
@@ -695,7 +729,9 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
         totalDeleted += result.items.length;
       } catch (error) {
         // If batch deletion fails, throw error with context
-        throw new Error(`Failed to delete batch during flush: ${error instanceof Error ? error.message : String(error)}`);
+        throw new Error(
+          `Failed to delete batch during flush: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
 
       hasMore = result.hasNext;
@@ -775,8 +811,11 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
     const filteredItems: ItemOf<KeyRec, KeyRec, DataRec>[] = [];
     let lastEvaluatedKey: KeyRec | undefined = undefined;
     let itemsGot = 0;
-    while ( !searchParams.limit || itemsGot < searchParams.limit) {
-      const qparams: QueryParams<PK, DataDto> = { pk: searchParams.pk, limit: searchLimit };
+    while (!searchParams.limit || itemsGot < searchParams.limit) {
+      const qparams: QueryParams<PK, DataDto> = {
+        pk: searchParams.pk,
+        limit: searchLimit,
+      };
       let query: Query<PK, SK, DataDto> = this.query(qparams);
 
       if (this.schemaFormatter.getSK() && searchParams.skCondition) {
@@ -796,15 +835,20 @@ export class Table<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
       query.sortAscending();
 
       const result = await query.run();
-      if( searchParams.limit && itemsGot + result.items.length > searchParams.limit) {
-        filteredItems.push(...result.items.slice(0, searchParams.limit - itemsGot));
+      if (
+        searchParams.limit &&
+        itemsGot + result.items.length > searchParams.limit
+      ) {
+        filteredItems.push(
+          ...result.items.slice(0, searchParams.limit - itemsGot)
+        );
         break;
       }
 
       filteredItems.push(...result.items);
       itemsGot += result.items.length;
 
-      if(!result.hasNext){
+      if (!result.hasNext) {
         break;
       }
       lastEvaluatedKey = result.lastEvaluatedKey;

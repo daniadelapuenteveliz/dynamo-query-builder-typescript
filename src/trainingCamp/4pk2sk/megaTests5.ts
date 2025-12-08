@@ -63,7 +63,7 @@ async function insert1000Records(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   for (let i = 0; i < 1000; i++) {
     const partitionIndex = Math.floor(i / 250);
     const A = (partitionIndex + 1).toString(); // "1", "2", "3", "4"
-    const H = (i % 250 + 1).toString().padStart(3, '0'); // "001" to "250"
+    const H = ((i % 250) + 1).toString().padStart(3, '0'); // "001" to "250"
 
     const statuses = ['active', 'inactive', 'pending'];
     const status = statuses[i % 3];
@@ -74,12 +74,12 @@ async function insert1000Records(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
     items.push({
       A,
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H,
       status,
       priority,
@@ -98,7 +98,9 @@ async function insert1000Records(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   return items;
 }
 
-async function testDeleteBySKEqual(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteBySKEqual(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 1: Delete by SK equal ===');
 
   // Verify items exist before deletion
@@ -108,7 +110,9 @@ async function testDeleteBySKEqual(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
   });
 
   if (beforeSearch.length === 0) {
-    throw new Error(`Expected to find 1 item with partition=1 and H=001 before deletion, got ${beforeSearch.length}`);
+    throw new Error(
+      `Expected to find 1 item with partition=1 and H=001 before deletion, got ${beforeSearch.length}`
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -128,12 +132,16 @@ async function testDeleteBySKEqual(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteBySKGreaterThan(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteBySKGreaterThan(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 2: Delete by SK greaterThan ===');
 
   // Verify items exist (partition=1, H > 200)
@@ -144,7 +152,9 @@ async function testDeleteBySKGreaterThan(tablaDePrueba: Table<pkDto, skDto, data
 
   const expectedCount = 50; // H values 201-250
   if (beforeSearch.length < expectedCount) {
-    throw new Error(`Expected at least ${expectedCount} items before deletion, got ${beforeSearch.length}`);
+    throw new Error(
+      `Expected at least ${expectedCount} items before deletion, got ${beforeSearch.length}`
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -165,12 +175,16 @@ async function testDeleteBySKGreaterThan(tablaDePrueba: Table<pkDto, skDto, data
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteBySKLowerThan(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteBySKLowerThan(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 3: Delete by SK lowerThan ===');
 
   // Verify items exist (partition=2, H < 50)
@@ -181,7 +195,9 @@ async function testDeleteBySKLowerThan(tablaDePrueba: Table<pkDto, skDto, dataDt
 
   const expectedCount = 49; // H values 001-049
   if (beforeSearch.length < expectedCount) {
-    throw new Error(`Expected at least ${expectedCount} items before deletion, got ${beforeSearch.length}`);
+    throw new Error(
+      `Expected at least ${expectedCount} items before deletion, got ${beforeSearch.length}`
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -201,30 +217,46 @@ async function testDeleteBySKLowerThan(tablaDePrueba: Table<pkDto, skDto, dataDt
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteBySKBetween(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteBySKBetween(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 4: Delete by SK between ===');
 
   // Verify items exist (partition=3, H between 100 and 150)
   const beforeSearch = await tablaDePrueba.search({
     pk: { A: '3', B: 'b', C: 'c', D: 'd' },
-    skCondition: { between: { from: { E: 'e', F: 'f', G: 'g', H: '100' }, to: { E: 'e', F: 'f', G: 'g', H: '150' } } },
+    skCondition: {
+      between: {
+        from: { E: 'e', F: 'f', G: 'g', H: '100' },
+        to: { E: 'e', F: 'f', G: 'g', H: '150' },
+      },
+    },
   });
 
   const expectedCount = 51; // H values 100-150
   if (beforeSearch.length < expectedCount) {
-    throw new Error(`Expected at least ${expectedCount} items before deletion, got ${beforeSearch.length}`);
+    throw new Error(
+      `Expected at least ${expectedCount} items before deletion, got ${beforeSearch.length}`
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
   // Delete items with partition=3 and H between 100 and 150
   const deleted = await tablaDePrueba.deleteWithCondition({
     pk: { A: '3', B: 'b', C: 'c', D: 'd' },
-    skCondition: { between: { from: { E: 'e', F: 'f', G: 'g', H: '100' }, to: { E: 'e', F: 'f', G: 'g', H: '150' } } },
+    skCondition: {
+      between: {
+        from: { E: 'e', F: 'f', G: 'g', H: '100' },
+        to: { E: 'e', F: 'f', G: 'g', H: '150' },
+      },
+    },
     limit: 100,
   });
 
@@ -233,12 +265,19 @@ async function testDeleteBySKBetween(tablaDePrueba: Table<pkDto, skDto, dataDto>
   // Verify items are gone
   const afterSearch = await tablaDePrueba.search({
     pk: { A: '3', B: 'b', C: 'c', D: 'd' },
-    skCondition: { between: { from: { E: 'e', F: 'f', G: 'g', H: '100' }, to: { E: 'e', F: 'f', G: 'g', H: '150' } } },
+    skCondition: {
+      between: {
+        from: { E: 'e', F: 'f', G: 'g', H: '100' },
+        to: { E: 'e', F: 'f', G: 'g', H: '150' },
+      },
+    },
     limit: 100,
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
@@ -253,7 +292,9 @@ async function testDeleteByFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   });
 
   if (beforeSearch.length === 0) {
-    throw new Error('Expected to find items with status=inactive before deletion');
+    throw new Error(
+      'Expected to find items with status=inactive before deletion'
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -273,13 +314,19 @@ async function testDeleteByFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteByFilterWithOperator(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
-  console.log('\n=== Test 6: Delete by filter with operator (priority >= 8) ===');
+async function testDeleteByFilterWithOperator(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
+  console.log(
+    '\n=== Test 6: Delete by filter with operator (priority >= 8) ==='
+  );
 
   // Verify items exist (partition=1, priority >= 8)
   const beforeSearch = await tablaDePrueba.search({
@@ -288,7 +335,9 @@ async function testDeleteByFilterWithOperator(tablaDePrueba: Table<pkDto, skDto,
   });
 
   if (beforeSearch.length === 0) {
-    throw new Error('Expected to find items with priority >= 8 before deletion');
+    throw new Error(
+      'Expected to find items with priority >= 8 before deletion'
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -309,12 +358,16 @@ async function testDeleteByFilterWithOperator(tablaDePrueba: Table<pkDto, skDto,
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteByFilterBoolean(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteByFilterBoolean(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 7: Delete by filter (boolean active=false) ===');
 
   // Verify items exist (partition=2, active=false)
@@ -344,12 +397,16 @@ async function testDeleteByFilterBoolean(tablaDePrueba: Table<pkDto, skDto, data
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteBySKAndFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteBySKAndFilter(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 8: Delete by SK condition AND filter ===');
 
   // Verify items exist (partition=3, H >= 200, status='pending')
@@ -360,7 +417,9 @@ async function testDeleteBySKAndFilter(tablaDePrueba: Table<pkDto, skDto, dataDt
   });
 
   if (beforeSearch.length === 0) {
-    throw new Error('Expected to find items with H >= 200 and status=pending before deletion');
+    throw new Error(
+      'Expected to find items with H >= 200 and status=pending before deletion'
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -383,12 +442,16 @@ async function testDeleteBySKAndFilter(tablaDePrueba: Table<pkDto, skDto, dataDt
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteBySKBeginsWith(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteBySKBeginsWith(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 9: Delete by SK beginsWith ===');
 
   // Verify items exist (partition=4, H begins with '2')
@@ -398,7 +461,9 @@ async function testDeleteBySKBeginsWith(tablaDePrueba: Table<pkDto, skDto, dataD
   });
 
   if (beforeSearch.length === 0) {
-    throw new Error('Expected to find items with H beginning with "2" before deletion');
+    throw new Error(
+      'Expected to find items with H beginning with "2" before deletion'
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -418,25 +483,33 @@ async function testDeleteBySKBeginsWith(tablaDePrueba: Table<pkDto, skDto, dataD
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteByMultipleFilters(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
-  console.log('\n=== Test 10: Delete by multiple filters (status AND priority) ===');
+async function testDeleteByMultipleFilters(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
+  console.log(
+    '\n=== Test 10: Delete by multiple filters (status AND priority) ==='
+  );
 
   // Verify items exist (partition=1, status='active', priority < 5)
   const beforeSearch = await tablaDePrueba.search({
     pk: { A: '1', B: 'b', C: 'c', D: 'd' },
     filter: {
       status: 'active',
-      priority: { '<': 5 }
+      priority: { '<': 5 },
     },
   });
 
   if (beforeSearch.length === 0) {
-    throw new Error('Expected to find items with status=active and priority < 5 before deletion');
+    throw new Error(
+      'Expected to find items with status=active and priority < 5 before deletion'
+    );
   }
   console.log(`Found ${beforeSearch.length} items before deletion`);
 
@@ -445,7 +518,7 @@ async function testDeleteByMultipleFilters(tablaDePrueba: Table<pkDto, skDto, da
     pk: { A: '1', B: 'b', C: 'c', D: 'd' },
     filter: {
       status: 'active',
-      priority: { '<': 5 }
+      priority: { '<': 5 },
     },
     limit: 200,
   });
@@ -457,18 +530,22 @@ async function testDeleteByMultipleFilters(tablaDePrueba: Table<pkDto, skDto, da
     pk: { A: '1', B: 'b', C: 'c', D: 'd' },
     filter: {
       status: 'active',
-      priority: { '<': 5 }
+      priority: { '<': 5 },
     },
     limit: 100,
   });
 
   if (afterSearch.length !== 0) {
-    throw new Error(`Expected 0 items after deletion, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected 0 items after deletion, got ${afterSearch.length}`
+    );
   }
   console.log('✓ Items successfully deleted and verified');
 }
 
-async function testDeleteWithLimit(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testDeleteWithLimit(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   console.log('\n=== Test 11: Delete with limit (partial deletion) ===');
 
   // Verify items exist (partition=2, status='pending')
@@ -479,7 +556,9 @@ async function testDeleteWithLimit(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 
   const totalBefore = beforeSearch.length;
   if (totalBefore === 0) {
-    throw new Error('Expected to find items with status=pending before deletion');
+    throw new Error(
+      'Expected to find items with status=pending before deletion'
+    );
   }
   console.log(`Found ${totalBefore} items before deletion`);
 
@@ -503,7 +582,9 @@ async function testDeleteWithLimit(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 
   const expectedRemaining = totalBefore - 10;
   if (afterSearch.length !== expectedRemaining) {
-    throw new Error(`Expected ${expectedRemaining} items remaining, got ${afterSearch.length}`);
+    throw new Error(
+      `Expected ${expectedRemaining} items remaining, got ${afterSearch.length}`
+    );
   }
   console.log(`✓ Correctly deleted 10 items, ${afterSearch.length} remaining`);
 }
@@ -511,11 +592,10 @@ async function testDeleteWithLimit(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 async function main() {
   const client = new DynamoClient(config);
   const nombreTabla = 'tabla2';
-  const tablaDePrueba = client.table<
-    pkDto,
-    skDto,
-    dataDto
-  >(nombreTabla, keySchema);
+  const tablaDePrueba = client.table<pkDto, skDto, dataDto>(
+    nombreTabla,
+    keySchema
+  );
 
   try {
     await tablaDePrueba.flush();
@@ -551,4 +631,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

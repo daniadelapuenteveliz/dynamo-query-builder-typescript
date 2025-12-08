@@ -4,7 +4,7 @@ import {
   KeySchema,
   DynamoScalar,
   paginationResult,
-  ItemKeysOf
+  ItemKeysOf,
 } from '../types/types';
 import { KeyRec, DataRec, KeyDef, ItemOf } from '../types/types';
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
@@ -242,15 +242,15 @@ export class SchemaFormatter<
 
   formatEmptyPaginationResult(
     direction: 'forward' | 'backward',
-    lastEvaluatedKey: KeyRec | undefined,
+    lastEvaluatedKey: KeyRec | undefined
   ): paginationResult {
     return {
       items: [],
       lastEvaluatedKey: lastEvaluatedKey,
       firstEvaluatedKey: lastEvaluatedKey,
       count: 0,
-      hasNext: (lastEvaluatedKey)?true:false,
-      hasPrevious: (lastEvaluatedKey)?true:false,
+      hasNext: lastEvaluatedKey ? true : false,
+      hasPrevious: lastEvaluatedKey ? true : false,
       direction: direction,
     };
   }
@@ -283,15 +283,16 @@ export class SchemaFormatter<
     limit: number,
     direction: 'forward' | 'backward',
     lastEvaluatedKey: KeyRec | undefined,
-    oldLastEvaluatedKey: KeyRec | undefined,
+    oldLastEvaluatedKey: KeyRec | undefined
   ): paginationResult {
-    if (items.length === 0) return this.formatEmptyPaginationResult(direction,lastEvaluatedKey);
+    if (items.length === 0)
+      return this.formatEmptyPaginationResult(direction, lastEvaluatedKey);
     let hasNext = false;
     let hasPrevious = false;
     if (oldLastEvaluatedKey) {
       hasPrevious = true;
     }
-    if (lastEvaluatedKey || (items.length === limit)) {
+    if (lastEvaluatedKey || items.length === limit) {
       hasNext = true;
     }
     if (items.length === limit) {

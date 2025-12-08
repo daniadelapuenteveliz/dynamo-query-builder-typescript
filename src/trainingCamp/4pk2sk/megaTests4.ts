@@ -48,22 +48,21 @@ type dataDto = {
 type itemDto = pkDto & skDto & dataDto;
 
 async function testSearchBasic(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
-
   // Insert 20 items with partition "1" and H from "01" to "20"
   const items: itemDto[] = [];
   for (let i = 1; i <= 20; i++) {
     items.push({
-      A: "1",
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      A: '1',
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H: i.toString().padStart(2, '0'),
-      symbol: i % 2 === 0 ? "even" : "odd",
+      symbol: i % 2 === 0 ? 'even' : 'odd',
       value: i * 10,
-      category: i <= 10 ? "A" : "B",
+      category: i <= 10 ? 'A' : 'B',
     });
   }
 
@@ -75,7 +74,7 @@ async function testSearchBasic(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   // Test 1: Basic search with just pk and limit
   const result1 = await tablaDePrueba.search({
-    pk: { A: "1", B: "b", C: "c", D: "d" },
+    pk: { A: '1', B: 'b', C: 'c', D: 'd' },
     limit: 10,
   });
 
@@ -87,16 +86,25 @@ async function testSearchBasic(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   for (let i = 0; i < 10; i++) {
     const expectedH = (i + 1).toString().padStart(2, '0');
     if (result1[i].H !== expectedH) {
-      throw new Error(`Item ${i} should have H ${expectedH}, got ${result1[i].H}`);
+      throw new Error(
+        `Item ${i} should have H ${expectedH}, got ${result1[i].H}`
+      );
     }
-    if (result1[i].A !== "1" || result1[i].B !== "b" || result1[i].C !== "c" || result1[i].D !== "d") {
-      throw new Error(`Item ${i} should have partition "1", got A=${result1[i].A}`);
+    if (
+      result1[i].A !== '1' ||
+      result1[i].B !== 'b' ||
+      result1[i].C !== 'c' ||
+      result1[i].D !== 'd'
+    ) {
+      throw new Error(
+        `Item ${i} should have partition "1", got A=${result1[i].A}`
+      );
     }
   }
 
   // Test 2: Search with limit greater than available items
   const result2 = await tablaDePrueba.search({
-    pk: { A: "1", B: "b", C: "c", D: "d" },
+    pk: { A: '1', B: 'b', C: 'c', D: 'd' },
   });
 
   if (result2.length !== 20) {
@@ -105,7 +113,7 @@ async function testSearchBasic(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   // Test 3: Search with limit that requires pagination (limit 15, but internal pagination is 25)
   const result3 = await tablaDePrueba.search({
-    pk: { A: "1", B: "b", C: "c", D: "d" },
+    pk: { A: '1', B: 'b', C: 'c', D: 'd' },
     limit: 15,
   });
 
@@ -114,7 +122,7 @@ async function testSearchBasic(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   // Clean up
-  await tablaDePrueba.deletePartition({ A: "1", B: "b", C: "c", D: "d" });
+  await tablaDePrueba.deletePartition({ A: '1', B: 'b', C: 'c', D: 'd' });
   const scanResult = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult.items.length !== 0) {
     throw new Error('Items with partition "1" are not deleted');
@@ -123,22 +131,24 @@ async function testSearchBasic(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   console.log('testSearchBasic completed successfully');
 }
 
-async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testSearchWithSKCondition(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   // Insert 30 items with partition "2" and H from "01" to "30"
   const items: itemDto[] = [];
   for (let i = 1; i <= 30; i++) {
     items.push({
-      A: "2",
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      A: '2',
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H: i.toString().padStart(2, '0'),
-      symbol: i % 3 === 0 ? "star" : "dash",
+      symbol: i % 3 === 0 ? 'star' : 'dash',
       value: i * 5,
-      category: i <= 15 ? "X" : "Y",
+      category: i <= 15 ? 'X' : 'Y',
     });
   }
 
@@ -149,22 +159,22 @@ async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, data
 
   // Test 1: Search with SK equal condition
   const result1 = await tablaDePrueba.search({
-    pk: { A: "2", B: "b", C: "c", D: "d" },
-    skCondition: { equal: { E: "e", F: "f", G: "g", H: "05" } },
+    pk: { A: '2', B: 'b', C: 'c', D: 'd' },
+    skCondition: { equal: { E: 'e', F: 'f', G: 'g', H: '05' } },
   });
 
   if (result1.length !== 1) {
     throw new Error(`Expected 1 item, got ${result1.length}`);
   }
-  if (result1[0].H !== "05") {
+  if (result1[0].H !== '05') {
     throw new Error(`Expected H "05", got ${result1[0].H}`);
   }
 
   // Test 2: Search with SK greaterThanOrEqual condition
   const result2 = await tablaDePrueba.search({
-    pk: { A: "2", B: "b", C: "c", D: "d" },
+    pk: { A: '2', B: 'b', C: 'c', D: 'd' },
     limit: 10,
-    skCondition: { greaterThanOrEqual: { E: "e", F: "f", G: "g", H: "20" } },
+    skCondition: { greaterThanOrEqual: { E: 'e', F: 'f', G: 'g', H: '20' } },
   });
 
   if (result2.length !== 10) {
@@ -188,8 +198,8 @@ async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, data
 
   // Test 3: Search with SK lowerThan condition
   const result3 = await tablaDePrueba.search({
-    pk: { A: "2", B: "b", C: "c", D: "d" },
-    skCondition: { lowerThan: { E: "e", F: "f", G: "g", H: "10" } },
+    pk: { A: '2', B: 'b', C: 'c', D: 'd' },
+    skCondition: { lowerThan: { E: 'e', F: 'f', G: 'g', H: '10' } },
   });
 
   if (result3.length !== 9) {
@@ -205,11 +215,15 @@ async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, data
 
   // Test 4: Search with SK between condition
   const result4 = await tablaDePrueba.search({
-    pk: { A: "2", B: "b", C: "c", D: "d" },
+    pk: { A: '2', B: 'b', C: 'c', D: 'd' },
     limit: 20,
-    skCondition: { between: { from: { E: "e", F: "f", G: "g", H: "10" }, to: { E: "e", F: "f", G: "g", H: "20" } } },
+    skCondition: {
+      between: {
+        from: { E: 'e', F: 'f', G: 'g', H: '10' },
+        to: { E: 'e', F: 'f', G: 'g', H: '20' },
+      },
+    },
   });
-
 
   if (result4.length !== 11) {
     throw new Error(`Expected 11 items, got ${result4.length}`);
@@ -224,8 +238,8 @@ async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, data
 
   // Test 5: Search with SK beginsWith condition
   const result5 = await tablaDePrueba.search({
-    pk: { A: "2", B: "b", C: "c", D: "d" },
-    skCondition: { beginsWith: { E: "e", F: "f", G: "g", H: "1" } },
+    pk: { A: '2', B: 'b', C: 'c', D: 'd' },
+    skCondition: { beginsWith: { E: 'e', F: 'f', G: 'g', H: '1' } },
   });
 
   if (result5.length !== 10) {
@@ -233,13 +247,13 @@ async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, data
   }
   // Verify all items have H starting with "1" (10-19)
   for (const item of result5) {
-    if (!item.H.startsWith("1")) {
+    if (!item.H.startsWith('1')) {
       throw new Error(`Expected H starting with "1", got ${item.H}`);
     }
   }
 
   // Clean up
-  await tablaDePrueba.deletePartition({ A: "2", B: "b", C: "c", D: "d" });
+  await tablaDePrueba.deletePartition({ A: '2', B: 'b', C: 'c', D: 'd' });
   const scanResult = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult.items.length !== 0) {
     throw new Error('Items with partition "2" are not deleted');
@@ -248,22 +262,24 @@ async function testSearchWithSKCondition(tablaDePrueba: Table<pkDto, skDto, data
   console.log('testSearchWithSKCondition completed successfully');
 }
 
-async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testSearchWithFilter(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   // Insert 40 items with partition "3"
   const items: itemDto[] = [];
   for (let i = 1; i <= 40; i++) {
     items.push({
-      A: "3",
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      A: '3',
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H: i.toString().padStart(2, '0'),
-      symbol: i % 4 === 0 ? "diamond" : "circle",
+      symbol: i % 4 === 0 ? 'diamond' : 'circle',
       value: i * 2,
-      category: i <= 20 ? "alpha" : "beta",
+      category: i <= 20 ? 'alpha' : 'beta',
     });
   }
 
@@ -274,17 +290,19 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
 
   // Test 1: Search with filter on symbol
   const result1 = await tablaDePrueba.search({
-    pk: { A: "3", B: "b", C: "c", D: "d" },
+    pk: { A: '3', B: 'b', C: 'c', D: 'd' },
     limit: 50,
-    filter: { symbol: "diamond" },
+    filter: { symbol: 'diamond' },
   });
 
   if (result1.length !== 10) {
-    throw new Error(`Expected 10 items with symbol "diamond", got ${result1.length}`);
+    throw new Error(
+      `Expected 10 items with symbol "diamond", got ${result1.length}`
+    );
   }
   // Verify all items have symbol "diamond"
   for (const item of result1) {
-    if (item.symbol !== "diamond") {
+    if (item.symbol !== 'diamond') {
       throw new Error(`Expected symbol "diamond", got ${item.symbol}`);
     }
   }
@@ -300,7 +318,7 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
 
   // Test 2: Search with filter on value (greater than)
   const result2 = await tablaDePrueba.search({
-    pk: { A: "3", B: "b", C: "c", D: "d" },
+    pk: { A: '3', B: 'b', C: 'c', D: 'd' },
     filter: { value: { '>': 60 } },
   });
 
@@ -316,26 +334,28 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
 
   // Test 3: Search with filter on category
   const result3 = await tablaDePrueba.search({
-    pk: { A: "3", B: "b", C: "c", D: "d" },
+    pk: { A: '3', B: 'b', C: 'c', D: 'd' },
     limit: 50,
-    filter: { category: "alpha" },
+    filter: { category: 'alpha' },
   });
 
   if (result3.length !== 20) {
-    throw new Error(`Expected 20 items with category "alpha", got ${result3.length}`);
+    throw new Error(
+      `Expected 20 items with category "alpha", got ${result3.length}`
+    );
   }
   // Verify all items have category "alpha"
   for (const item of result3) {
-    if (item.category !== "alpha") {
+    if (item.category !== 'alpha') {
       throw new Error(`Expected category "alpha", got ${item.category}`);
     }
   }
 
   // Test 4: Search with filter and SK condition combined
   const result4 = await tablaDePrueba.search({
-    pk: { A: "3", B: "b", C: "c", D: "d" },
-    skCondition: { greaterThanOrEqual: { E: "e", F: "f", G: "g", H: "20" } },
-    filter: { symbol: "diamond" },
+    pk: { A: '3', B: 'b', C: 'c', D: 'd' },
+    skCondition: { greaterThanOrEqual: { E: 'e', F: 'f', G: 'g', H: '20' } },
+    filter: { symbol: 'diamond' },
   });
 
   if (result4.length !== 6) {
@@ -347,16 +367,16 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
     if (hNum < 20) {
       throw new Error(`Expected H >= 20, got ${item.H}`);
     }
-    if (item.symbol !== "diamond") {
+    if (item.symbol !== 'diamond') {
       throw new Error(`Expected symbol "diamond", got ${item.symbol}`);
     }
   }
 
   const result5 = await tablaDePrueba.search({
-    pk: { A: "3", B: "b", C: "c", D: "d" },
+    pk: { A: '3', B: 'b', C: 'c', D: 'd' },
     limit: 50,
-    skCondition: { greaterThanOrEqual: { E: "e", F: "f", G: "g", H: "20" } },
-    filter: { symbol: "diamond", category: "beta", value: { '>': 60 } },
+    skCondition: { greaterThanOrEqual: { E: 'e', F: 'f', G: 'g', H: '20' } },
+    filter: { symbol: 'diamond', category: 'beta', value: { '>': 60 } },
   });
 
   if (result5.length !== 3) {
@@ -364,10 +384,10 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
   }
 
   for (const item of result5) {
-    if (item.symbol !== "diamond") {
+    if (item.symbol !== 'diamond') {
       throw new Error(`Expected symbol "diamond", got ${item.symbol}`);
     }
-    if (item.category !== "beta") {
+    if (item.category !== 'beta') {
       throw new Error(`Expected category "beta", got ${item.category}`);
     }
     if (item.value <= 60) {
@@ -376,7 +396,7 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
   }
 
   // Clean up
-  await tablaDePrueba.deletePartition({ A: "3", B: "b", C: "c", D: "d" });
+  await tablaDePrueba.deletePartition({ A: '3', B: 'b', C: 'c', D: 'd' });
   const scanResult = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult.items.length !== 0) {
     throw new Error('Items with partition "3" are not deleted');
@@ -385,22 +405,24 @@ async function testSearchWithFilter(tablaDePrueba: Table<pkDto, skDto, dataDto>)
   console.log('testSearchWithFilter completed successfully');
 }
 
-async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testSearchWithProjection(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   // Insert 15 items with partition "4"
   const items: itemDto[] = [];
   for (let i = 1; i <= 15; i++) {
     items.push({
-      A: "4",
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      A: '4',
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H: i.toString().padStart(2, '0'),
-      symbol: "test",
+      symbol: 'test',
       value: i * 3,
-      category: "test",
+      category: 'test',
     });
   }
 
@@ -411,7 +433,7 @@ async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataD
 
   // Test 1: Search with projection (only symbol and value)
   const result1 = await tablaDePrueba.search({
-    pk: { A: "4", B: "b", C: "c", D: "d" },
+    pk: { A: '4', B: 'b', C: 'c', D: 'd' },
     project: ['symbol', 'value'],
   });
 
@@ -421,10 +443,19 @@ async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataD
 
   // Verify all items have partition and sort keys (keys are always present)
   for (const item of result1) {
-    if (!item.A || !item.B || !item.C || !item.D || !item.E || !item.F || !item.G || !item.H) {
+    if (
+      !item.A ||
+      !item.B ||
+      !item.C ||
+      !item.D ||
+      !item.E ||
+      !item.F ||
+      !item.G ||
+      !item.H
+    ) {
       throw new Error('Item should have all key fields');
     }
-    if (item.symbol !== "test") {
+    if (item.symbol !== 'test') {
       throw new Error(`Expected symbol "test", got ${item.symbol}`);
     }
     // category should not be present (or undefined)
@@ -434,13 +465,15 @@ async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataD
     }
     //assert that symbol and value are present
     if (!item.symbol || !item.value) {
-      throw new Error(`Expected symbol and value, got ${item.symbol} and ${item.value}`);
+      throw new Error(
+        `Expected symbol and value, got ${item.symbol} and ${item.value}`
+      );
     }
   }
 
   // Test 2: Search with projection and filter
   const result2 = await tablaDePrueba.search({
-    pk: { A: "4", B: "b", C: "c", D: "d" },
+    pk: { A: '4', B: 'b', C: 'c', D: 'd' },
     limit: 15,
     filter: { value: { '>': 30 } },
     project: ['value'],
@@ -457,7 +490,16 @@ async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataD
     if (!item.value) {
       throw new Error(`Expected value, got ${item.value}`);
     }
-    if (!item.A || !item.B || !item.C || !item.D || !item.E || !item.F || !item.G || !item.H) {
+    if (
+      !item.A ||
+      !item.B ||
+      !item.C ||
+      !item.D ||
+      !item.E ||
+      !item.F ||
+      !item.G ||
+      !item.H
+    ) {
       throw new Error('Item should have all key fields');
     }
     if (item.symbol) {
@@ -466,7 +508,7 @@ async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataD
   }
 
   // Clean up
-  await tablaDePrueba.deletePartition({ A: "4", B: "b", C: "c", D: "d" });
+  await tablaDePrueba.deletePartition({ A: '4', B: 'b', C: 'c', D: 'd' });
   const scanResult = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult.items.length !== 0) {
     throw new Error('Items with partition "4" are not deleted');
@@ -475,22 +517,24 @@ async function testSearchWithProjection(tablaDePrueba: Table<pkDto, skDto, dataD
   console.log('testSearchWithProjection completed successfully');
 }
 
-async function testSearchPagination(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testSearchPagination(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   // Insert 60 items with partition "5" to test pagination
   const items: itemDto[] = [];
   for (let i = 1; i <= 60; i++) {
     items.push({
-      A: "5",
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      A: '5',
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H: i.toString().padStart(2, '0'),
-      symbol: "pag",
+      symbol: 'pag',
       value: i,
-      category: "test",
+      category: 'test',
     });
   }
 
@@ -502,7 +546,7 @@ async function testSearchPagination(tablaDePrueba: Table<pkDto, skDto, dataDto>)
   // Test 1: Search with limit that requires multiple internal queries
   // The search method uses internal limit of 25, so to get 50 items, it needs 2 queries
   const result1 = await tablaDePrueba.search({
-    pk: { A: "5", B: "b", C: "c", D: "d" },
+    pk: { A: '5', B: 'b', C: 'c', D: 'd' },
     limit: 50,
   });
 
@@ -521,7 +565,7 @@ async function testSearchPagination(tablaDePrueba: Table<pkDto, skDto, dataDto>)
 
   // Test 2: Search with limit that doesn't align with internal pagination
   const result2 = await tablaDePrueba.search({
-    pk: { A: "5", B: "b", C: "c", D: "d" },
+    pk: { A: '5', B: 'b', C: 'c', D: 'd' },
     limit: 35,
   });
 
@@ -534,17 +578,17 @@ async function testSearchPagination(tablaDePrueba: Table<pkDto, skDto, dataDto>)
   const items2: itemDto[] = [];
   for (let i = 1; i <= 60; i++) {
     items2.push({
-      A: "5",
-      B: "b",
-      C: "c",
-      D: "d",
-      E: "e",
-      F: "f",
-      G: "g",
+      A: '5',
+      B: 'b',
+      C: 'c',
+      D: 'd',
+      E: 'e',
+      F: 'f',
+      G: 'g',
       H: (i + 60).toString().padStart(2, '0'),
-      symbol: i % 3 === 0 ? "target" : "other",
+      symbol: i % 3 === 0 ? 'target' : 'other',
       value: i,
-      category: "test",
+      category: 'test',
     });
   }
 
@@ -555,23 +599,25 @@ async function testSearchPagination(tablaDePrueba: Table<pkDto, skDto, dataDto>)
 
   // Search for "target" items - should find 20 items across multiple pages
   const result3 = await tablaDePrueba.search({
-    pk: { A: "5", B: "b", C: "c", D: "d" },
-    filter: { symbol: "target" },
+    pk: { A: '5', B: 'b', C: 'c', D: 'd' },
+    filter: { symbol: 'target' },
   });
 
   if (result3.length !== 20) {
-    throw new Error(`Expected 20 items with symbol "target", got ${result3.length}`);
+    throw new Error(
+      `Expected 20 items with symbol "target", got ${result3.length}`
+    );
   }
 
   // Verify all items have symbol "target"
   for (const item of result3) {
-    if (item.symbol !== "target") {
+    if (item.symbol !== 'target') {
       throw new Error(`Expected symbol "target", got ${item.symbol}`);
     }
   }
 
   // Clean up
-  await tablaDePrueba.deletePartition({ A: "5", B: "b", C: "c", D: "d" });
+  await tablaDePrueba.deletePartition({ A: '5', B: 'b', C: 'c', D: 'd' });
   const scanResult = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult.items.length !== 0) {
     throw new Error('Items with partition "5" are not deleted');
@@ -580,10 +626,12 @@ async function testSearchPagination(tablaDePrueba: Table<pkDto, skDto, dataDto>)
   console.log('testSearchPagination completed successfully');
 }
 
-async function testSearchEdgeCases(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
+async function testSearchEdgeCases(
+  tablaDePrueba: Table<pkDto, skDto, dataDto>
+) {
   // Test 1: Search with no items
   const result1 = await tablaDePrueba.search({
-    pk: { A: "6", B: "b", C: "c", D: "d" },
+    pk: { A: '6', B: 'b', C: 'c', D: 'd' },
     limit: 10,
   });
 
@@ -593,7 +641,7 @@ async function testSearchEdgeCases(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 
   // Test 2: Search with limit 0
   const result2 = await tablaDePrueba.search({
-    pk: { A: "6", B: "b", C: "c", D: "d" },
+    pk: { A: '6', B: 'b', C: 'c', D: 'd' },
   });
 
   if (result2.length !== 0) {
@@ -602,35 +650,35 @@ async function testSearchEdgeCases(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 
   // Test 3: Insert one item and search
   await tablaDePrueba.put({
-    A: "6",
-    B: "b",
-    C: "c",
-    D: "d",
-    E: "e",
-    F: "f",
-    G: "g",
-    H: "01",
-    symbol: "single",
+    A: '6',
+    B: 'b',
+    C: 'c',
+    D: 'd',
+    E: 'e',
+    F: 'f',
+    G: 'g',
+    H: '01',
+    symbol: 'single',
     value: 100,
-    category: "test",
+    category: 'test',
   });
 
   const result3 = await tablaDePrueba.search({
-    pk: { A: "6", B: "b", C: "c", D: "d" },
+    pk: { A: '6', B: 'b', C: 'c', D: 'd' },
     limit: 10,
   });
 
   if (result3.length !== 1) {
     throw new Error(`Expected 1 item, got ${result3.length}`);
   }
-  if (result3[0].H !== "01") {
+  if (result3[0].H !== '01') {
     throw new Error(`Expected H "01", got ${result3[0].H}`);
   }
 
   // Test 4: Search with SK condition that matches no items
   const result4 = await tablaDePrueba.search({
-    pk: { A: "6", B: "b", C: "c", D: "d" },
-    skCondition: { greaterThan: { E: "e", F: "f", G: "g", H: "10" } },
+    pk: { A: '6', B: 'b', C: 'c', D: 'd' },
+    skCondition: { greaterThan: { E: 'e', F: 'f', G: 'g', H: '10' } },
   });
 
   if (result4.length !== 0) {
@@ -639,9 +687,9 @@ async function testSearchEdgeCases(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 
   // Test 5: Search with filter that matches no items
   const result5 = await tablaDePrueba.search({
-    pk: { A: "6", B: "b", C: "c", D: "d" },
+    pk: { A: '6', B: 'b', C: 'c', D: 'd' },
     limit: 10,
-    filter: { symbol: "nonexistent" },
+    filter: { symbol: 'nonexistent' },
   });
 
   if (result5.length !== 0) {
@@ -649,7 +697,7 @@ async function testSearchEdgeCases(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
   }
 
   // Clean up
-  await tablaDePrueba.deletePartition({ A: "6", B: "b", C: "c", D: "d" });
+  await tablaDePrueba.deletePartition({ A: '6', B: 'b', C: 'c', D: 'd' });
   const scanResult = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult.items.length !== 0) {
     throw new Error('Items with partition "6" are not deleted');
@@ -661,11 +709,10 @@ async function testSearchEdgeCases(tablaDePrueba: Table<pkDto, skDto, dataDto>) 
 async function main() {
   const client = new DynamoClient(config);
   const nombreTabla = 'tabla2';
-  const tablaDePrueba = client.table<
-    pkDto,
-    skDto,
-    dataDto
-  >(nombreTabla, keySchema);
+  const tablaDePrueba = client.table<pkDto, skDto, dataDto>(
+    nombreTabla,
+    keySchema
+  );
 
   await tablaDePrueba.flush();
   const scanResult4 = await tablaDePrueba.scan({ limit: 10 }).run();
@@ -688,4 +735,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

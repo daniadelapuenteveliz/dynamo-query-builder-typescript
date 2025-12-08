@@ -39,40 +39,45 @@ type dataDto = {};
 //type itemDto = pkDto & skDto & dataDto;
 
 async function testQuerySimple(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
-
   await tablaDePrueba.putBatch([
-    { timestamp: "1", count: "01" },
-    { timestamp: "1", count: "02" },
-    { timestamp: "1", count: "03" },
-    { timestamp: "1", count: "04" },
-    { timestamp: "1", count: "05" },
-    { timestamp: "1", count: "06" },
-    { timestamp: "1", count: "07" },
-    { timestamp: "1", count: "08" },
-    { timestamp: "1", count: "09" },
-    { timestamp: "1", count: "10" },
+    { timestamp: '1', count: '01' },
+    { timestamp: '1', count: '02' },
+    { timestamp: '1', count: '03' },
+    { timestamp: '1', count: '04' },
+    { timestamp: '1', count: '05' },
+    { timestamp: '1', count: '06' },
+    { timestamp: '1', count: '07' },
+    { timestamp: '1', count: '08' },
+    { timestamp: '1', count: '09' },
+    { timestamp: '1', count: '10' },
   ]);
 
   for (let i = 1; i <= 5; i++) {
-    const item = await tablaDePrueba.getOne({ timestamp: "1" }, { timestamp: "1", count: `0${i}` });
+    const item = await tablaDePrueba.getOne(
+      { timestamp: '1' },
+      { timestamp: '1', count: `0${i}` }
+    );
     if (!item) {
       throw new Error(`Item ${i} does not exist`);
     }
   }
 
-  const items2 = await tablaDePrueba.query({ pk: { timestamp: "1" }, limit: 10 }).whereSKGreaterThanOrEqual({ timestamp: "1", count: "06" }).run();
+  const items2 = await tablaDePrueba
+    .query({ pk: { timestamp: '1' }, limit: 10 })
+    .whereSKGreaterThanOrEqual({ timestamp: '1', count: '06' })
+    .run();
   for (let i = 6; i <= 9; i++) {
     const item = items2.items.find(item => item.count === `0${i}`);
     if (!item) {
       throw new Error(`Item ${i} does not exist`);
     }
   }
-  if (!items2.items.find(item => item.count === "10")) {
+  if (!items2.items.find(item => item.count === '10')) {
     throw new Error('Item 10 should exist');
   }
 
   //now delete all with timestamp 1
-  await tablaDePrueba.deletePartition({ timestamp: "1" });
+  await tablaDePrueba.deletePartition({ timestamp: '1' });
 
   //assert that all items with timestamp 1 are deleted
   const items = await tablaDePrueba.scan({ limit: 10 }).run();
@@ -88,7 +93,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   const items = [];
   for (let i = 1; i <= 25; i++) {
     items.push({
-      timestamp: "2",
+      timestamp: '2',
       count: i.toString().padStart(2, '0'), // "01", "02", ..., "90"
     });
   }
@@ -101,7 +106,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   // Get the first 7 items using getPartitionBatch
   const firstBatch = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
   });
   // Test that we got items from "01" to "07"
@@ -112,7 +117,9 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
     const expectedCount = i.toString().padStart(2, '0');
     const item = firstBatch.items.find(item => item.count === expectedCount);
     if (!item) {
-      throw new Error(`Item with count ${expectedCount} not found in first batch`);
+      throw new Error(
+        `Item with count ${expectedCount} not found in first batch`
+      );
     }
   }
 
@@ -120,13 +127,24 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!firstBatch.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null');
   }
-  if (firstBatch.lastEvaluatedKey.timestamp !== "2" || firstBatch.lastEvaluatedKey.count !== "07") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2", got ${firstBatch.lastEvaluatedKey.timestamp}`);
+  if (
+    firstBatch.lastEvaluatedKey.timestamp !== '2' ||
+    firstBatch.lastEvaluatedKey.count !== '07'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2", got ${firstBatch.lastEvaluatedKey.timestamp}`
+    );
   }
 
   // Test that firstEvaluatedKey is null/undefined
-  if (!firstBatch.firstEvaluatedKey || firstBatch.firstEvaluatedKey.timestamp !== "2" || firstBatch.firstEvaluatedKey?.count !== "01") {
-    throw new Error(`firstEvaluatedKey should be undefined, got ${firstBatch.firstEvaluatedKey}`);
+  if (
+    !firstBatch.firstEvaluatedKey ||
+    firstBatch.firstEvaluatedKey.timestamp !== '2' ||
+    firstBatch.firstEvaluatedKey?.count !== '01'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey should be undefined, got ${firstBatch.firstEvaluatedKey}`
+    );
   }
 
   if (firstBatch.hasNext != true) {
@@ -138,7 +156,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   // Use the lastEvaluatedKey as pivot to get the next 7 items
   const secondBatch = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
     pagination: {
       pivot: firstBatch.lastEvaluatedKey,
@@ -147,13 +165,17 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   });
   // Test that we got items from "08" to "14"
   if (secondBatch.items.length !== 7) {
-    throw new Error(`Expected 7 items in second batch, got ${secondBatch.items.length}`);
+    throw new Error(
+      `Expected 7 items in second batch, got ${secondBatch.items.length}`
+    );
   }
   for (let i = 8; i <= 14; i++) {
     const expectedCount = i.toString().padStart(2, '0');
     const item = secondBatch.items.find(item => item.count === expectedCount);
     if (!item) {
-      throw new Error(`Item with count ${expectedCount} not found in second batch`);
+      throw new Error(
+        `Item with count ${expectedCount} not found in second batch`
+      );
     }
   }
 
@@ -161,12 +183,23 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!secondBatch.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in second batch');
   }
-  if (secondBatch.lastEvaluatedKey.timestamp !== "2" || secondBatch.lastEvaluatedKey.count !== "14") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2", got ${secondBatch.lastEvaluatedKey.timestamp}`);
+  if (
+    secondBatch.lastEvaluatedKey.timestamp !== '2' ||
+    secondBatch.lastEvaluatedKey.count !== '14'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2", got ${secondBatch.lastEvaluatedKey.timestamp}`
+    );
   }
 
-  if (!secondBatch.firstEvaluatedKey || secondBatch.firstEvaluatedKey?.timestamp !== "2" || secondBatch.firstEvaluatedKey?.count !== "08") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "08", got ${secondBatch.firstEvaluatedKey?.timestamp} and ${secondBatch.firstEvaluatedKey?.count}`);
+  if (
+    !secondBatch.firstEvaluatedKey ||
+    secondBatch.firstEvaluatedKey?.timestamp !== '2' ||
+    secondBatch.firstEvaluatedKey?.count !== '08'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "08", got ${secondBatch.firstEvaluatedKey?.timestamp} and ${secondBatch.firstEvaluatedKey?.count}`
+    );
   }
 
   if (secondBatch.hasNext != true) {
@@ -177,7 +210,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch3 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
     pagination: {
       pivot: secondBatch.lastEvaluatedKey,
@@ -199,11 +232,22 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!batch3.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in batch3');
   }
-  if (batch3.lastEvaluatedKey.timestamp !== "2" || batch3.lastEvaluatedKey.count !== "21") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2" and count "21", got ${batch3.lastEvaluatedKey.timestamp} and ${batch3.lastEvaluatedKey.count}`);
+  if (
+    batch3.lastEvaluatedKey.timestamp !== '2' ||
+    batch3.lastEvaluatedKey.count !== '21'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2" and count "21", got ${batch3.lastEvaluatedKey.timestamp} and ${batch3.lastEvaluatedKey.count}`
+    );
   }
-  if (!batch3.firstEvaluatedKey || batch3.firstEvaluatedKey.timestamp !== "2" || batch3.firstEvaluatedKey?.count !== "15") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "15", got ${batch3.firstEvaluatedKey?.timestamp} and ${batch3.firstEvaluatedKey?.count}`);
+  if (
+    !batch3.firstEvaluatedKey ||
+    batch3.firstEvaluatedKey.timestamp !== '2' ||
+    batch3.firstEvaluatedKey?.count !== '15'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "15", got ${batch3.firstEvaluatedKey?.timestamp} and ${batch3.firstEvaluatedKey?.count}`
+    );
   }
 
   if (batch3.hasNext != true) {
@@ -214,7 +258,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch4 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
     pagination: {
       pivot: batch3.firstEvaluatedKey,
@@ -236,11 +280,22 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!batch4.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in batch4');
   }
-  if (batch4.lastEvaluatedKey.timestamp !== "2" || batch4.lastEvaluatedKey.count !== "08") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2" and count "08", got ${batch4.lastEvaluatedKey.timestamp} and ${batch4.lastEvaluatedKey.count}`);
+  if (
+    batch4.lastEvaluatedKey.timestamp !== '2' ||
+    batch4.lastEvaluatedKey.count !== '08'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2" and count "08", got ${batch4.lastEvaluatedKey.timestamp} and ${batch4.lastEvaluatedKey.count}`
+    );
   }
-  if (!batch4.firstEvaluatedKey || batch4.firstEvaluatedKey.timestamp !== "2" || batch4.firstEvaluatedKey?.count !== "14") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "14", got ${batch4.firstEvaluatedKey?.timestamp} and ${batch4.firstEvaluatedKey?.count}`);
+  if (
+    !batch4.firstEvaluatedKey ||
+    batch4.firstEvaluatedKey.timestamp !== '2' ||
+    batch4.firstEvaluatedKey?.count !== '14'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "14", got ${batch4.firstEvaluatedKey?.timestamp} and ${batch4.firstEvaluatedKey?.count}`
+    );
   }
 
   if (batch4.hasNext != true) {
@@ -251,14 +306,13 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch5 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
     pagination: {
       pivot: batch4.lastEvaluatedKey,
       direction: 'backward',
     },
   });
-
 
   if (batch5.items.length !== 7) {
     throw new Error(`Expected 7 items in batch5, got ${batch5.items.length}`);
@@ -274,11 +328,22 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!batch5.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in batch5');
   }
-  if (batch5.lastEvaluatedKey.timestamp !== "2" || batch5.lastEvaluatedKey.count !== "01") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2" and count "07", got ${batch5.lastEvaluatedKey.timestamp} and ${batch5.lastEvaluatedKey.count}`);
+  if (
+    batch5.lastEvaluatedKey.timestamp !== '2' ||
+    batch5.lastEvaluatedKey.count !== '01'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2" and count "07", got ${batch5.lastEvaluatedKey.timestamp} and ${batch5.lastEvaluatedKey.count}`
+    );
   }
-  if (!batch5.firstEvaluatedKey || batch5.firstEvaluatedKey.timestamp !== "2" || batch5.firstEvaluatedKey?.count !== "07") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "01", got ${batch5.firstEvaluatedKey?.timestamp} and ${batch5.firstEvaluatedKey?.count}`);
+  if (
+    !batch5.firstEvaluatedKey ||
+    batch5.firstEvaluatedKey.timestamp !== '2' ||
+    batch5.firstEvaluatedKey?.count !== '07'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "01", got ${batch5.firstEvaluatedKey?.timestamp} and ${batch5.firstEvaluatedKey?.count}`
+    );
   }
 
   if (batch5.hasNext != false) {
@@ -289,7 +354,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch6 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
     pagination: {
       pivot: batch3.lastEvaluatedKey,
@@ -317,18 +382,28 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!batch6.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in batch6');
   }
-  if (batch6.lastEvaluatedKey.timestamp !== "2" || batch6.lastEvaluatedKey.count !== "25") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2" and count "25", got ${batch6.lastEvaluatedKey.timestamp} and ${batch6.lastEvaluatedKey.count}`);
+  if (
+    batch6.lastEvaluatedKey.timestamp !== '2' ||
+    batch6.lastEvaluatedKey.count !== '25'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2" and count "25", got ${batch6.lastEvaluatedKey.timestamp} and ${batch6.lastEvaluatedKey.count}`
+    );
   }
   if (!batch6.firstEvaluatedKey) {
     throw new Error('firstEvaluatedKey should not be null in batch6');
   }
-  if (batch6.firstEvaluatedKey.timestamp !== "2" || batch6.firstEvaluatedKey.count !== "22") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "22", got ${batch6.firstEvaluatedKey.timestamp} and ${batch6.firstEvaluatedKey.count}`);
+  if (
+    batch6.firstEvaluatedKey.timestamp !== '2' ||
+    batch6.firstEvaluatedKey.count !== '22'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "22", got ${batch6.firstEvaluatedKey.timestamp} and ${batch6.firstEvaluatedKey.count}`
+    );
   }
 
   const batch7 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 7,
     pagination: {
       pivot: batch6.lastEvaluatedKey,
@@ -353,7 +428,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch8 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 20,
     pagination: {
       pivot: batch6.firstEvaluatedKey,
@@ -375,14 +450,24 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (!batch8.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in batch8');
   }
-  if (batch8.lastEvaluatedKey.timestamp !== "2" || batch8.lastEvaluatedKey.count !== "02") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2" and count "01", got ${batch8.lastEvaluatedKey.timestamp} and ${batch8.lastEvaluatedKey.count}`);
+  if (
+    batch8.lastEvaluatedKey.timestamp !== '2' ||
+    batch8.lastEvaluatedKey.count !== '02'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2" and count "01", got ${batch8.lastEvaluatedKey.timestamp} and ${batch8.lastEvaluatedKey.count}`
+    );
   }
   if (!batch8.firstEvaluatedKey) {
     throw new Error('firstEvaluatedKey should not be null in batch8');
   }
-  if (batch8.firstEvaluatedKey.timestamp !== "2" || batch8.firstEvaluatedKey.count !== "21") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "21", got ${batch8.firstEvaluatedKey.timestamp} and ${batch8.firstEvaluatedKey.count}`);
+  if (
+    batch8.firstEvaluatedKey.timestamp !== '2' ||
+    batch8.firstEvaluatedKey.count !== '21'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "21", got ${batch8.firstEvaluatedKey.timestamp} and ${batch8.firstEvaluatedKey.count}`
+    );
   }
 
   if (batch8.hasNext != true) {
@@ -393,7 +478,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch9 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 20,
     pagination: {
       pivot: batch8.lastEvaluatedKey,
@@ -404,20 +489,30 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (batch9.items.length !== 1) {
     throw new Error(`Expected 1 item in batch9, got ${batch9.items.length}`);
   }
-  if (batch9.items[0].count !== "01") {
+  if (batch9.items[0].count !== '01') {
     throw new Error(`Item with count "01" not found in batch9`);
   }
   if (!batch9.lastEvaluatedKey) {
     throw new Error('lastEvaluatedKey should not be null in batch9');
   }
-  if (batch9.lastEvaluatedKey.timestamp !== "2" || batch9.lastEvaluatedKey.count !== "01") {
-    throw new Error(`lastEvaluatedKey timestamp should be "2" and count "01", got ${batch9.lastEvaluatedKey.timestamp} and ${batch9.lastEvaluatedKey.count}`);
+  if (
+    batch9.lastEvaluatedKey.timestamp !== '2' ||
+    batch9.lastEvaluatedKey.count !== '01'
+  ) {
+    throw new Error(
+      `lastEvaluatedKey timestamp should be "2" and count "01", got ${batch9.lastEvaluatedKey.timestamp} and ${batch9.lastEvaluatedKey.count}`
+    );
   }
   if (!batch9.firstEvaluatedKey) {
     throw new Error('firstEvaluatedKey should not be null in batch9');
   }
-  if (batch9.firstEvaluatedKey.timestamp !== "2" || batch9.firstEvaluatedKey.count !== "01") {
-    throw new Error(`firstEvaluatedKey timestamp should be "2" and count "01", got ${batch9.firstEvaluatedKey.timestamp} and ${batch9.firstEvaluatedKey.count}`);
+  if (
+    batch9.firstEvaluatedKey.timestamp !== '2' ||
+    batch9.firstEvaluatedKey.count !== '01'
+  ) {
+    throw new Error(
+      `firstEvaluatedKey timestamp should be "2" and count "01", got ${batch9.firstEvaluatedKey.timestamp} and ${batch9.firstEvaluatedKey.count}`
+    );
   }
   if (batch9.hasNext != false) {
     throw new Error('hasNext should be false');
@@ -427,7 +522,7 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   const batch10 = await tablaDePrueba.getPartitionBatch({
-    pk: { timestamp: "2" },
+    pk: { timestamp: '2' },
     limit: 20,
     pagination: {
       pivot: batch9.lastEvaluatedKey,
@@ -450,13 +545,17 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
     throw new Error('firstEvaluatedKey should be null in batch10');
   }
   // Finally delete the partition
-  await tablaDePrueba.deletePartition({ timestamp: "2" });
+  await tablaDePrueba.deletePartition({ timestamp: '2' });
 
   // Assert that all items with timestamp 2 are deleted
   const itemsAfterDelete = await tablaDePrueba.scan({ limit: 100 }).run();
-  const remainingItems = itemsAfterDelete.items.filter(item => item.timestamp === "2");
+  const remainingItems = itemsAfterDelete.items.filter(
+    item => item.timestamp === '2'
+  );
   if (remainingItems.length !== 0) {
-    throw new Error(`Items with timestamp 2 are not deleted. Found ${remainingItems.length} items`);
+    throw new Error(
+      `Items with timestamp 2 are not deleted. Found ${remainingItems.length} items`
+    );
   }
   console.log('testQueryMedium completed successfully');
 }
@@ -464,11 +563,10 @@ async function testQueryMedium(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 async function main() {
   const client = new DynamoClient(config);
   const nombreTabla = 'tabla';
-  const tablaDePrueba = client.table<
-    pkDto,
-    skDto,
-    dataDto
-  >(nombreTabla, keySchema);
+  const tablaDePrueba = client.table<pkDto, skDto, dataDto>(
+    nombreTabla,
+    keySchema
+  );
   await tablaDePrueba.flush();
   const scanResult4 = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult4.items.length !== 0) {
@@ -482,8 +580,6 @@ async function main() {
     throw new Error('Scan result is not correct');
   }
 }
-
-
 
 /*
 putBatch(items, override?) (line 362)

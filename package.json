@@ -29,16 +29,16 @@
         "wrapper",
         "database"
     ],
-    "author": "Your Name <your.email@example.com>",
+    "author": "Dania Ignacia de la Puente Véliz",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/yourusername/dynamo-query-builder.git"
+        "url": "https://github.com/daniadelapuenteveliz/dynamo-query-builder-typescript.git"
     },
     "bugs": {
-        "url": "https://github.com/yourusername/dynamo-query-builder/issues"
+        "url": "https://github.com/daniadelapuenteveliz/dynamo-query-builder-typescript/issues"
     },
-    "homepage": "https://github.com/yourusername/dynamo-query-builder#readme",
+    "homepage": "https://github.com/daniadelapuenteveliz/dynamo-query-builder-typescript#readme",
     "engines": {
         "node": ">=14.0.0"
     },

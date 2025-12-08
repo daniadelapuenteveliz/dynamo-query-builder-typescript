@@ -1,18 +1,41 @@
-import { AttributeValue, DynamoDBClient, QueryCommandOutput, ScanCommandOutput } from '@aws-sdk/client-dynamodb';
-import { QueryCommand, QueryCommandInput, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
+import {
+  AttributeValue,
+  DynamoDBClient,
+  QueryCommandOutput,
+  ScanCommandOutput,
+} from '@aws-sdk/client-dynamodb';
+import {
+  QueryCommand,
+  QueryCommandInput,
+  ScanCommand,
+  ScanCommandInput,
+} from '@aws-sdk/client-dynamodb';
 import { SchemaFormatter } from '../formatting/schemaFormatter';
-import { KeyRec, DataRec, ProjectDto, ItemKeysOf, rawFilterParams, ItemOf, CommandInput, FilterObject, paginationResult } from '../types/types';
+import {
+  KeyRec,
+  DataRec,
+  ProjectDto,
+  ItemKeysOf,
+  rawFilterParams,
+  ItemOf,
+  CommandInput,
+  FilterObject,
+  paginationResult,
+} from '../types/types';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { DynamoErrorFactory } from '../types/errors';
 
-
-export class Chain<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec> {
+export class Chain<
+  PK extends KeyRec,
+  SK extends KeyRec,
+  DataDto extends DataRec,
+> {
   constructor(
     public params: CommandInput,
     public queryType: string,
     public schemaFormatter: SchemaFormatter<PK, SK, DataDto>,
     private client: DynamoDBClient
-  ) { }
+  ) {}
 
   getClient(): DynamoDBClient {
     return this.client;
@@ -52,7 +75,7 @@ export class Chain<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
 
   private buildQueryCommandInput(): QueryCommandInput {
     const sharedParams = this.buildSharedCommandInput();
-    sharedParams.ScanIndexForward = (this.params.ScanIndexForward) ? (true) : (false);
+    sharedParams.ScanIndexForward = this.params.ScanIndexForward ? true : false;
     if (this.params.KeyConditionExpression) {
       sharedParams.KeyConditionExpression = this.params.KeyConditionExpression;
     }
@@ -76,19 +99,24 @@ export class Chain<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
     } else {
       throw DynamoErrorFactory.invalidQueryType(this.queryType);
     }
-    const unmarshalledItems = result.Items?.map((item: any) => unmarshall(item)) || [];
+    const unmarshalledItems =
+      result.Items?.map((item: any) => unmarshall(item)) || [];
     const items: ItemOf<PK, SK, DataDto>[] = unmarshalledItems.map(
       (item: Record<string, AttributeValue>) =>
         this.schemaFormatter.formatRecordAsItemDto(item)
     );
 
     let newLastEvaluatedKey: KeyRec | undefined = undefined;
-    if(result.LastEvaluatedKey) {
-      newLastEvaluatedKey = this.schemaFormatter.formatRecordAsItemDto(unmarshall(result.LastEvaluatedKey))
+    if (result.LastEvaluatedKey) {
+      newLastEvaluatedKey = this.schemaFormatter.formatRecordAsItemDto(
+        unmarshall(result.LastEvaluatedKey)
+      );
     }
     let oldLastEvaluatedKey: KeyRec | undefined = undefined;
-    if(this.params.ExclusiveStartKey) {
-      oldLastEvaluatedKey = this.schemaFormatter.formatRecordAsItemDto(unmarshall(this.params.ExclusiveStartKey))
+    if (this.params.ExclusiveStartKey) {
+      oldLastEvaluatedKey = this.schemaFormatter.formatRecordAsItemDto(
+        unmarshall(this.params.ExclusiveStartKey)
+      );
     }
 
     return this.schemaFormatter.formatPaginationResult(
@@ -96,7 +124,7 @@ export class Chain<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
       this.params.Limit,
       this.params.ScanIndexForward ? 'forward' : 'backward',
       newLastEvaluatedKey,
-      oldLastEvaluatedKey,
+      oldLastEvaluatedKey
     );
   }
 
@@ -188,7 +216,11 @@ export class Chain<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
 
       names[namePlaceholder] = key as string;
 
-      if (typeof condition === 'object' && condition !== null && !Array.isArray(condition)) {
+      if (
+        typeof condition === 'object' &&
+        condition !== null &&
+        !Array.isArray(condition)
+      ) {
         // Handle operators
         // We need to cast condition to any or Record to iterate safely because TS doesn't like iterating over union types or mapped types easily in this context
         const condObj = condition as Record<string, any>;
@@ -198,7 +230,9 @@ export class Chain<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec
 
           if (value !== undefined) {
             const valuePlaceholder = `:val_${safeKey}_${counter}_${operator.replace(/[^a-zA-Z0-9]/g, '')}`;
-            expressionParts.push(`${namePlaceholder} ${operator} ${valuePlaceholder}`);
+            expressionParts.push(
+              `${namePlaceholder} ${operator} ${valuePlaceholder}`
+            );
 
             if (typeof value === 'number') {
               values[valuePlaceholder] = { N: value.toString() };

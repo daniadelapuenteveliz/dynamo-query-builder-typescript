@@ -152,25 +152,43 @@ export class OperationError extends DynamoError {
  */
 export class DynamoErrorFactory {
   static invalidQueryType(queryType: string): ConfigurationError {
-    return new ConfigurationError(ErrorCode.INVALID_QUERY_TYPE, `Invalid query type: ${queryType}`);
+    return new ConfigurationError(
+      ErrorCode.INVALID_QUERY_TYPE,
+      `Invalid query type: ${queryType}`
+    );
   }
   static keyTypeNotSupported(): ConfigurationError {
-    return new ConfigurationError(ErrorCode.KEY_TYPE_NOT_SUPPORTED, 'Key type not supported');
+    return new ConfigurationError(
+      ErrorCode.KEY_TYPE_NOT_SUPPORTED,
+      'Key type not supported'
+    );
   }
   static SKNotDefinedInSchema(): ConfigurationError {
-    return new ConfigurationError(ErrorCode.SK_NOT_DEFINED_IN_SCHEMA, 'SK is not defined in the schema');
+    return new ConfigurationError(
+      ErrorCode.SK_NOT_DEFINED_IN_SCHEMA,
+      'SK is not defined in the schema'
+    );
   }
   static keyNotIncludedInSK(key: string): ConfigurationError {
-    return new ConfigurationError(ErrorCode.KEY_NOT_INCLUDED_IN_SK, `Key "${key}" is not included in the SK`);
+    return new ConfigurationError(
+      ErrorCode.KEY_NOT_INCLUDED_IN_SK,
+      `Key "${key}" is not included in the SK`
+    );
   }
   static firstKeyNotIncludedInSK(): ConfigurationError {
-    return new ConfigurationError(ErrorCode.FIRST_KEY_NOT_INCLUDED_IN_SK, 'The first key is not included in the SK');
+    return new ConfigurationError(
+      ErrorCode.FIRST_KEY_NOT_INCLUDED_IN_SK,
+      'The first key is not included in the SK'
+    );
   }
   static SKEmpty(): ConfigurationError {
     return new ConfigurationError(ErrorCode.SK_EMPTY, 'SK is empty');
   }
   static keyPartRequired(keyPart: string): ConfigurationError {
-    return new ConfigurationError(ErrorCode.KEY_PART_REQUIRED, `Key part "${keyPart}" is required`);
+    return new ConfigurationError(
+      ErrorCode.KEY_PART_REQUIRED,
+      `Key part "${keyPart}" is required`
+    );
   }
   static itemNotFound(tableName?: string): MetadataError {
     return new MetadataError(ErrorCode.ITEM_DOES_NOT_EXIST, 'Item not found', {

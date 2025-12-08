@@ -22,13 +22,18 @@ export interface Params<DataDto extends DataRec> {
   project?: ProjectDto<DataDto>;
 }
 
-export interface ScanParams<DataDto extends DataRec> extends Params<DataDto> { }
+export interface ScanParams<DataDto extends DataRec> extends Params<DataDto> {}
 
-export interface QueryParams<PK extends KeyRec, DataDto extends DataRec> extends Params<DataDto> {
+export interface QueryParams<PK extends KeyRec, DataDto extends DataRec>
+  extends Params<DataDto> {
   pk: PK;
 }
 
-export interface SearchParams<PK extends KeyRec, SK extends KeyRec, DataDto extends DataRec> {
+export interface SearchParams<
+  PK extends KeyRec,
+  SK extends KeyRec,
+  DataDto extends DataRec,
+> {
   pk: PK;
   skCondition?: SKCondition<SK>;
   filter?: FilterObject<DataDto>;
@@ -47,13 +52,15 @@ export interface rawFilterParams {
 
 export type FilterOperator = '=' | '<>' | '<' | '<=' | '>' | '>=';
 export type FilterValue = string | number | boolean | null;
-export type FilterCondition = FilterValue | { [key in FilterOperator]?: FilterValue };
+export type FilterCondition =
+  | FilterValue
+  | { [key in FilterOperator]?: FilterValue };
 export type FilterObject<DataDto> = {
   [key in keyof DataDto]?: FilterCondition;
 };
 
-export type SKCondition<SK extends KeyRec> = 
-  | SK  // equal por defecto (backward compatible)
+export type SKCondition<SK extends KeyRec> =
+  | SK // equal por defecto (backward compatible)
   | { equal: SK }
   | { greaterThan: SK }
   | { lowerThan: SK }
@@ -82,7 +89,7 @@ export type DynamoScalar =
   | Array<DynamoScalar>
   | Object;
 
-interface DynamoList extends Array<DynamoValue> { }
+interface DynamoList extends Array<DynamoValue> {}
 type DynamoMap = { [key: string]: DynamoValue };
 type DynamoValue = DynamoScalar | DynamoList | DynamoMap;
 export interface KeySchema {
@@ -110,9 +117,10 @@ export type KeyDef<T extends KeyRec> = {
   separator?: string;
 };
 
-export type KeysOf<PK extends KeyRec, SK extends KeyRec | never> = SK extends never
-  ? PK
-  : PK & SK;
+export type KeysOf<
+  PK extends KeyRec,
+  SK extends KeyRec | never,
+> = SK extends never ? PK : PK & SK;
 
 export type ItemOf<
   PK extends KeyRec,
@@ -120,7 +128,10 @@ export type ItemOf<
   Data extends DataRec | never,
 > = KeysOf<PK, SK> & (Data extends never ? {} : Data);
 
-export type ItemKeysOf<PK extends KeyRec, SK extends KeyRec | never> = KeysOf<PK, SK>;
+export type ItemKeysOf<PK extends KeyRec, SK extends KeyRec | never> = KeysOf<
+  PK,
+  SK
+>;
 
 export type UpdateItemInput = {
   TableName: string;

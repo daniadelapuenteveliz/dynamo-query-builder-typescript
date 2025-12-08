@@ -10,12 +10,18 @@ export class Query<
   SK extends KeyRec,
   DataDto extends DataRec,
 > extends Chain<PK, SK, DataDto> {
-
-  constructor(params: CommandInput, schemaFormatter: SchemaFormatter<PK, SK, DataDto>, client: DynamoDBClient) {
+  constructor(
+    params: CommandInput,
+    schemaFormatter: SchemaFormatter<PK, SK, DataDto>,
+    client: DynamoDBClient
+  ) {
     super(params, 'query', schemaFormatter, client);
   }
 
-  private compare(skparams: Partial<SK>, operator: string): Query<PK, SK, DataDto> {
+  private compare(
+    skparams: Partial<SK>,
+    operator: string
+  ): Query<PK, SK, DataDto> {
     if (!this.schemaFormatter.keySchema.sk) {
       throw DynamoErrorFactory.SKNotDefinedInSchema();
     }

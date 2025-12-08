@@ -231,7 +231,7 @@ describe('Table command methods', () => {
     it('creates query with string type PK', () => {
       const client = createClient();
       const table = new Table<PK, SK, Data>(client, 'Messages', schema);
-      
+
       const query = table.query({
         pk: { tenantId: 'tenant1', userId: 'user1' },
         limit: 10,
@@ -247,7 +247,7 @@ describe('Table command methods', () => {
     it('creates query with IndexName', () => {
       const client = createClient();
       const table = new Table<PK, SK, Data>(client, 'Messages', schema);
-      
+
       const query = table.query({
         pk: { tenantId: 'tenant1', userId: 'user1' },
         limit: 10,
@@ -261,7 +261,7 @@ describe('Table command methods', () => {
     it('creates query with project', () => {
       const client = createClient();
       const table = new Table<PK, SK, Data>(client, 'Messages', schema);
-      
+
       const query = table.query({
         pk: { tenantId: 'tenant1', userId: 'user1' },
         limit: 10,
@@ -284,10 +284,13 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { sort: 'sort1' });
+
+      tableAny.applySKCondition(query, { sort: 'sort1' });
 
       expect(queryMock.whereSKequal).toHaveBeenCalledWith({ sort: 'sort1' });
     });
@@ -301,10 +304,13 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { equal: { sort: 'sort1' } });
+
+      tableAny.applySKCondition(query, { equal: { sort: 'sort1' } });
 
       expect(queryMock.whereSKequal).toHaveBeenCalledWith({ sort: 'sort1' });
     });
@@ -318,12 +324,17 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { greaterThan: { sort: 'sort1' } });
 
-      expect(queryMock.whereSKGreaterThan).toHaveBeenCalledWith({ sort: 'sort1' });
+      tableAny.applySKCondition(query, { greaterThan: { sort: 'sort1' } });
+
+      expect(queryMock.whereSKGreaterThan).toHaveBeenCalledWith({
+        sort: 'sort1',
+      });
     });
 
     it('handles SK condition with lowerThan', () => {
@@ -335,12 +346,17 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { lowerThan: { sort: 'sort1' } });
 
-      expect(queryMock.whereSKLowerThan).toHaveBeenCalledWith({ sort: 'sort1' });
+      tableAny.applySKCondition(query, { lowerThan: { sort: 'sort1' } });
+
+      expect(queryMock.whereSKLowerThan).toHaveBeenCalledWith({
+        sort: 'sort1',
+      });
     });
 
     it('handles SK condition with greaterThanOrEqual', () => {
@@ -352,12 +368,19 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { greaterThanOrEqual: { sort: 'sort1' } });
 
-      expect(queryMock.whereSKGreaterThanOrEqual).toHaveBeenCalledWith({ sort: 'sort1' });
+      tableAny.applySKCondition(query, {
+        greaterThanOrEqual: { sort: 'sort1' },
+      });
+
+      expect(queryMock.whereSKGreaterThanOrEqual).toHaveBeenCalledWith({
+        sort: 'sort1',
+      });
     });
 
     it('handles SK condition with lowerThanOrEqual', () => {
@@ -369,12 +392,17 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { lowerThanOrEqual: { sort: 'sort1' } });
 
-      expect(queryMock.whereSKLowerThanOrEqual).toHaveBeenCalledWith({ sort: 'sort1' });
+      tableAny.applySKCondition(query, { lowerThanOrEqual: { sort: 'sort1' } });
+
+      expect(queryMock.whereSKLowerThanOrEqual).toHaveBeenCalledWith({
+        sort: 'sort1',
+      });
     });
 
     it('handles SK condition with beginsWith', () => {
@@ -386,12 +414,17 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { beginsWith: { sort: 'sort' } });
 
-      expect(queryMock.whereSKBeginsWith).toHaveBeenCalledWith({ sort: 'sort' });
+      tableAny.applySKCondition(query, { beginsWith: { sort: 'sort' } });
+
+      expect(queryMock.whereSKBeginsWith).toHaveBeenCalledWith({
+        sort: 'sort',
+      });
     });
 
     it('handles SK condition with between', () => {
@@ -403,14 +436,20 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
-     tableAny.applySKCondition(query, { 
-        between: { from: { sort: 'sort1' }, to: { sort: 'sort2' } } 
+
+      tableAny.applySKCondition(query, {
+        between: { from: { sort: 'sort1' }, to: { sort: 'sort2' } },
       });
 
-      expect(queryMock.whereSKBetween).toHaveBeenCalledWith({ sort: 'sort1' }, { sort: 'sort2' });
+      expect(queryMock.whereSKBetween).toHaveBeenCalledWith(
+        { sort: 'sort1' },
+        { sort: 'sort2' }
+      );
     });
 
     it('falls back to whereSKequal for unknown condition', () => {
@@ -422,9 +461,12 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
+
       tableAny.applySKCondition(query, { unknown: { sort: 'sort1' } } as any);
 
       expect(queryMock.whereSKequal).toHaveBeenCalled();
@@ -439,9 +481,12 @@ describe('Table command methods', () => {
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
 
-      const query = table.query({ pk: { tenantId: 'tenant1', userId: 'user1' }, limit: 10 });
+      const query = table.query({
+        pk: { tenantId: 'tenant1', userId: 'user1' },
+        limit: 10,
+      });
       const tableAny = table as any;
-      
+
       // Pass a non-object value to trigger line 1045 (backward compatible path)
       // This tests defensive code for runtime type checking
       tableAny.applySKCondition(query, null as any);

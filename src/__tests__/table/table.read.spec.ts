@@ -1,6 +1,13 @@
 import { AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { Table } from '../../table';
-import { KeySchema, QueryParams, ScanParams, CommandInput, FilterObject, ProjectDto } from '../../types/types';
+import {
+  KeySchema,
+  QueryParams,
+  ScanParams,
+  CommandInput,
+  FilterObject,
+  ProjectDto,
+} from '../../types/types';
 import { ErrorCode } from '../../types/errors';
 
 jest.mock('@aws-sdk/client-dynamodb', () => {
@@ -389,7 +396,6 @@ describe('Table.query', () => {
 
     expect((query as any).params.IndexName).toBe('GSI1');
   });
-
 });
 
 describe('Table.queryRaw', () => {
@@ -671,7 +677,11 @@ describe('Table.search', () => {
     jest.clearAllMocks();
   });
 
-  const buildQueryMock = (items: any[], hasNext: boolean = false, lastEvaluatedKey?: any) => {
+  const buildQueryMock = (
+    items: any[],
+    hasNext: boolean = false,
+    lastEvaluatedKey?: any
+  ) => {
     const runMock = jest.fn().mockResolvedValue({
       items,
       lastEvaluatedKey,
@@ -700,12 +710,28 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1235', status: 'pending' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1235',
+        status: 'pending',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKequalMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -744,11 +770,21 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKequalMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -767,7 +803,10 @@ describe('Table.search', () => {
       limit: 10,
     });
 
-    expect(whereSKequalMock).toHaveBeenCalledWith({ category: 'purchase', orderId: '1234' });
+    expect(whereSKequalMock).toHaveBeenCalledWith({
+      category: 'purchase',
+      orderId: '1234',
+    });
     expect(result).toEqual(mockItems);
   });
 
@@ -779,11 +818,21 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1235', status: 'shipped' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1235',
+        status: 'shipped',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKGreaterThanMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -802,7 +851,10 @@ describe('Table.search', () => {
       limit: 10,
     });
 
-    expect(whereSKGreaterThanMock).toHaveBeenCalledWith({ category: 'purchase', orderId: '1234' });
+    expect(whereSKGreaterThanMock).toHaveBeenCalledWith({
+      category: 'purchase',
+      orderId: '1234',
+    });
     expect(result).toEqual(mockItems);
   });
 
@@ -814,11 +866,21 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1233', status: 'shipped' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1233',
+        status: 'shipped',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKLowerThanMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -837,7 +899,10 @@ describe('Table.search', () => {
       limit: 10,
     });
 
-    expect(whereSKLowerThanMock).toHaveBeenCalledWith({ category: 'purchase', orderId: '1234' });
+    expect(whereSKLowerThanMock).toHaveBeenCalledWith({
+      category: 'purchase',
+      orderId: '1234',
+    });
     expect(result).toEqual(mockItems);
   });
 
@@ -849,11 +914,21 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKGreaterThanOrEqualMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -868,11 +943,16 @@ describe('Table.search', () => {
 
     const result = await table.search({
       pk: { tenantId: 'tenant', userId: 'user' },
-      skCondition: { greaterThanOrEqual: { category: 'purchase', orderId: '1234' } },
+      skCondition: {
+        greaterThanOrEqual: { category: 'purchase', orderId: '1234' },
+      },
       limit: 10,
     });
 
-    expect(whereSKGreaterThanOrEqualMock).toHaveBeenCalledWith({ category: 'purchase', orderId: '1234' });
+    expect(whereSKGreaterThanOrEqualMock).toHaveBeenCalledWith({
+      category: 'purchase',
+      orderId: '1234',
+    });
     expect(result).toEqual(mockItems);
   });
 
@@ -884,11 +964,21 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKLowerThanOrEqualMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -903,11 +993,16 @@ describe('Table.search', () => {
 
     const result = await table.search({
       pk: { tenantId: 'tenant', userId: 'user' },
-      skCondition: { lowerThanOrEqual: { category: 'purchase', orderId: '1234' } },
+      skCondition: {
+        lowerThanOrEqual: { category: 'purchase', orderId: '1234' },
+      },
       limit: 10,
     });
 
-    expect(whereSKLowerThanOrEqualMock).toHaveBeenCalledWith({ category: 'purchase', orderId: '1234' });
+    expect(whereSKLowerThanOrEqualMock).toHaveBeenCalledWith({
+      category: 'purchase',
+      orderId: '1234',
+    });
     expect(result).toEqual(mockItems);
   });
 
@@ -919,12 +1014,28 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1235', status: 'pending' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1235',
+        status: 'pending',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKBeginsWithMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -943,7 +1054,9 @@ describe('Table.search', () => {
       limit: 10,
     });
 
-    expect(whereSKBeginsWithMock).toHaveBeenCalledWith({ category: 'purchase' });
+    expect(whereSKBeginsWithMock).toHaveBeenCalledWith({
+      category: 'purchase',
+    });
     expect(result).toEqual(mockItems);
   });
 
@@ -955,12 +1068,28 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1235', status: 'pending' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1235',
+        status: 'pending',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const whereSKBetweenMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),
@@ -975,7 +1104,12 @@ describe('Table.search', () => {
 
     const result = await table.search({
       pk: { tenantId: 'tenant', userId: 'user' },
-      skCondition: { between: { from: { category: 'purchase', orderId: '1234' }, to: { category: 'purchase', orderId: '1236' } } },
+      skCondition: {
+        between: {
+          from: { category: 'purchase', orderId: '1234' },
+          to: { category: 'purchase', orderId: '1236' },
+        },
+      },
       limit: 10,
     });
 
@@ -1000,12 +1134,14 @@ describe('Table.search', () => {
       schemaWithoutSK
     );
 
-    const mockItems = [
-      { tenantId: 'tenant', status: 'shipped' },
-    ];
+    const mockItems = [{ tenantId: 'tenant', status: 'shipped' }];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const queryMock = {
       filter: jest.fn().mockReturnThis(),
@@ -1033,11 +1169,21 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
     ];
 
-    const { runMock, formatPaginationResultMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = formatPaginationResultMock;
+    const { runMock, formatPaginationResultMock } = buildQueryMock(
+      mockItems,
+      false
+    );
+    (table as any).schemaFormatter.formatPaginationResult =
+      formatPaginationResultMock;
 
     const filterMock = jest.fn().mockReturnThis();
     const projectMock = jest.fn().mockReturnThis();
@@ -1076,13 +1222,37 @@ describe('Table.search', () => {
     );
 
     const firstBatch = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1235', status: 'pending' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1236', status: 'delivered' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1235',
+        status: 'pending',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1236',
+        status: 'delivered',
+      },
     ];
 
     const secondBatch = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1237', status: 'cancelled' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1237',
+        status: 'cancelled',
+      },
     ];
 
     const firstRunMock = jest.fn().mockResolvedValueOnce({
@@ -1147,20 +1317,40 @@ describe('Table.search', () => {
     );
 
     const mockItems = [
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1234', status: 'shipped' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1235', status: 'pending' },
-      { tenantId: 'tenant', userId: 'user', category: 'purchase', orderId: '1236', status: 'delivered' },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1234',
+        status: 'shipped',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1235',
+        status: 'pending',
+      },
+      {
+        tenantId: 'tenant',
+        userId: 'user',
+        category: 'purchase',
+        orderId: '1236',
+        status: 'delivered',
+      },
     ];
 
     const { runMock } = buildQueryMock(mockItems, false);
-    (table as any).schemaFormatter.formatPaginationResult = jest.fn().mockReturnValue({
-      items: mockItems,
-      hasNext: false,
-      lastEvaluatedKey: undefined,
-      count: mockItems.length,
-      firstEvaluatedKey: mockItems[0],
-      direction: 'forward' as const,
-    });
+    (table as any).schemaFormatter.formatPaginationResult = jest
+      .fn()
+      .mockReturnValue({
+        items: mockItems,
+        hasNext: false,
+        lastEvaluatedKey: undefined,
+        count: mockItems.length,
+        firstEvaluatedKey: mockItems[0],
+        direction: 'forward' as const,
+      });
 
     const whereSKequalMock = jest.fn().mockReturnValue({
       filter: jest.fn().mockReturnThis(),

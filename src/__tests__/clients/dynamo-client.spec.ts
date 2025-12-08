@@ -6,7 +6,7 @@ jest.mock('@aws-sdk/client-dynamodb', () => {
   const actual = jest.requireActual('@aws-sdk/client-dynamodb');
   return {
     ...actual,
-    DynamoDBClient: jest.fn().mockImplementation((config) => ({
+    DynamoDBClient: jest.fn().mockImplementation(config => ({
       config,
     })),
   };
@@ -71,7 +71,10 @@ describe('DynamoClient', () => {
           keys: ['id'],
         },
       };
-      const table = dynamoClient.table<PK, never, Data>('TestTable', tableSchema);
+      const table = dynamoClient.table<PK, never, Data>(
+        'TestTable',
+        tableSchema
+      );
 
       expect(table).toBeDefined();
       expect(table.getTableName()).toBe('TestTable');
@@ -96,4 +99,3 @@ describe('DynamoClient', () => {
     });
   });
 });
-

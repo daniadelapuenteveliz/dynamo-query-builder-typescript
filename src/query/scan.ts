@@ -9,8 +9,11 @@ export class Scan<
   SK extends KeyRec,
   DataDto extends DataRec,
 > extends Chain<PK, SK, DataDto> {
-
-  constructor(params: CommandInput, schemaFormatter: SchemaFormatter<PK, SK, DataDto>, client: DynamoDBClient) {
+  constructor(
+    params: CommandInput,
+    schemaFormatter: SchemaFormatter<PK, SK, DataDto>,
+    client: DynamoDBClient
+  ) {
     super(params, 'scan', schemaFormatter, client);
   }
 }

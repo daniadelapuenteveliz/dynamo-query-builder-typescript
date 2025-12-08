@@ -114,9 +114,9 @@ describe('Table update helpers', () => {
     expect(input.Key).toEqual({ PK: { S: 'id#1' } });
     expect(input.ConditionExpression).toBe('attribute_exists(#pk)');
     expect(input.UpdateExpression).toBe('SET #score = :score');
-    expect(input.ExpressionAttributeNames).toEqual({ 
+    expect(input.ExpressionAttributeNames).toEqual({
       '#pk': 'PK',
-      '#score': 'score' 
+      '#score': 'score',
     });
     expect(input.ExpressionAttributeValues).toEqual({ ':score': { N: '10' } });
   });

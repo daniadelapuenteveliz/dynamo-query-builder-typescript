@@ -55,7 +55,6 @@ describe('Chain', () => {
     client = createClient();
     schemaFormatter = new SchemaFormatter<PK, SK, Data>(keySchema);
     params = {
-
       TableName: 'TestTable',
       Limit: 10,
       KeyConditionExpression: '#pk = :pk',
@@ -111,7 +110,10 @@ describe('Chain', () => {
       const result = await chain.run();
 
       expect(sendMock).toHaveBeenCalledTimes(1);
-      expect(QueryCommand).toHaveBeenCalledWith({ ...params, ScanIndexForward: false });
+      expect(QueryCommand).toHaveBeenCalledWith({
+        ...params,
+        ScanIndexForward: false,
+      });
       expect(result.items).toHaveLength(2);
       expect(result).toHaveProperty('items');
       expect(result).toHaveProperty('hasNext');
@@ -199,7 +201,12 @@ describe('Chain', () => {
     });
 
     it('throws error for invalid query type', async () => {
-      const chain = new Chain(params, 'invalid' as any, schemaFormatter, client);
+      const chain = new Chain(
+        params,
+        'invalid' as any,
+        schemaFormatter,
+        client
+      );
 
       await expect(chain.run()).rejects.toMatchObject({
         code: ErrorCode.INVALID_QUERY_TYPE,
@@ -225,7 +232,9 @@ describe('Chain', () => {
 
       jest
         .spyOn(schemaFormatter, 'formatRecordAsItemDto')
-        .mockImplementation(() => ({ tenantId: 'tenant1', category: 'cat1' } as any));
+        .mockImplementation(
+          () => ({ tenantId: 'tenant1', category: 'cat1' }) as any
+        );
 
       await chain.run();
 
@@ -268,7 +277,10 @@ describe('Chain', () => {
 
       expect(result.lastEvaluatedKey).toBeDefined();
       expect(schemaFormatter.formatRecordAsItemDto).toHaveBeenCalledWith(
-        expect.objectContaining({ pk: { S: 'tenant1' }, sk: { S: 'category2' } })
+        expect.objectContaining({
+          pk: { S: 'tenant1' },
+          sk: { S: 'category2' },
+        })
       );
     });
 
@@ -295,7 +307,10 @@ describe('Chain', () => {
       await chain.run();
 
       expect(schemaFormatter.formatRecordAsItemDto).toHaveBeenCalledWith(
-        expect.objectContaining({ pk: { S: 'tenant0' }, sk: { S: 'category0' } })
+        expect.objectContaining({
+          pk: { S: 'tenant0' },
+          sk: { S: 'category0' },
+        })
       );
     });
 
@@ -311,19 +326,19 @@ describe('Chain', () => {
 
       jest
         .spyOn(schemaFormatter, 'formatRecordAsItemDto')
-        .mockImplementation(() => ({ tenantId: 'tenant1', category: 'cat1' } as any));
+        .mockImplementation(
+          () => ({ tenantId: 'tenant1', category: 'cat1' }) as any
+        );
 
-      jest
-        .spyOn(schemaFormatter, 'formatPaginationResult')
-        .mockReturnValue({
-          items: [],
-          hasNext: false,
-          hasPrevious: false,
-          count: 0,
-          lastEvaluatedKey: undefined,
-          firstEvaluatedKey: undefined,
-          direction: 'backward',
-        });
+      jest.spyOn(schemaFormatter, 'formatPaginationResult').mockReturnValue({
+        items: [],
+        hasNext: false,
+        hasPrevious: false,
+        count: 0,
+        lastEvaluatedKey: undefined,
+        firstEvaluatedKey: undefined,
+        direction: 'backward',
+      });
 
       await chain.run();
 
@@ -355,19 +370,19 @@ describe('Chain', () => {
 
       jest
         .spyOn(schemaFormatter, 'formatRecordAsItemDto')
-        .mockImplementation(() => ({ tenantId: 'tenant1', category: 'cat1' } as any));
+        .mockImplementation(
+          () => ({ tenantId: 'tenant1', category: 'cat1' }) as any
+        );
 
-      jest
-        .spyOn(schemaFormatter, 'formatPaginationResult')
-        .mockReturnValue({
-          items: [],
-          hasNext: false,
-          hasPrevious: false,
-          count: 0,
-          lastEvaluatedKey: undefined,
-          firstEvaluatedKey: undefined,
-          direction: 'backward',
-        });
+      jest.spyOn(schemaFormatter, 'formatPaginationResult').mockReturnValue({
+        items: [],
+        hasNext: false,
+        hasPrevious: false,
+        count: 0,
+        lastEvaluatedKey: undefined,
+        firstEvaluatedKey: undefined,
+        direction: 'backward',
+      });
 
       await chain.run();
 
@@ -395,19 +410,19 @@ describe('Chain', () => {
 
       jest
         .spyOn(schemaFormatter, 'formatRecordAsItemDto')
-        .mockImplementation(() => ({ tenantId: 'tenant1', category: 'cat1' } as any));
+        .mockImplementation(
+          () => ({ tenantId: 'tenant1', category: 'cat1' }) as any
+        );
 
-      jest
-        .spyOn(schemaFormatter, 'formatPaginationResult')
-        .mockReturnValue({
-          items: [],
-          hasNext: false,
-          hasPrevious: false,
-          count: 0,
-          lastEvaluatedKey: undefined,
-          firstEvaluatedKey: undefined,
-          direction: 'forward',
-        });
+      jest.spyOn(schemaFormatter, 'formatPaginationResult').mockReturnValue({
+        items: [],
+        hasNext: false,
+        hasPrevious: false,
+        count: 0,
+        lastEvaluatedKey: undefined,
+        firstEvaluatedKey: undefined,
+        direction: 'forward',
+      });
 
       await chain.run();
 
@@ -472,7 +487,9 @@ describe('Chain', () => {
 
       const result = chain.project(['status']);
 
-      expect(params.ProjectionExpression).toMatch(/^#attr_pk_\d+, #attr_sk_\d+, #attr_status_\d+$/);
+      expect(params.ProjectionExpression).toMatch(
+        /^#attr_pk_\d+, #attr_sk_\d+, #attr_status_\d+$/
+      );
       expect(params.ExpressionAttributeNames).toEqual(
         expect.objectContaining({
           '#pk': 'pk',
@@ -480,9 +497,15 @@ describe('Chain', () => {
       );
       // Verify the attribute name mappings exist
       const nameKeys = Object.keys(params.ExpressionAttributeNames || {});
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'status')).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'status')
+      ).toBe(true);
       expect(result).toBe(chain);
     });
 
@@ -504,11 +527,17 @@ describe('Chain', () => {
 
       const result = chain.project(['status']);
 
-      expect(params.ProjectionExpression).toMatch(/^#attr_pk_\d+, #attr_status_\d+$/);
+      expect(params.ProjectionExpression).toMatch(
+        /^#attr_pk_\d+, #attr_status_\d+$/
+      );
       expect(params.ExpressionAttributeNames).toBeDefined();
       const nameKeys = Object.keys(params.ExpressionAttributeNames || {});
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'status')).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'status')
+      ).toBe(true);
       expect(result).toBe(chain);
     });
 
@@ -523,11 +552,17 @@ describe('Chain', () => {
 
       const result = chain.project([]);
 
-      expect(params.ProjectionExpression).toMatch(/^#attr_pk_\d+, #attr_sk_\d+$/);
+      expect(params.ProjectionExpression).toMatch(
+        /^#attr_pk_\d+, #attr_sk_\d+$/
+      );
       expect(params.ExpressionAttributeNames).toBeDefined();
       const nameKeys = Object.keys(params.ExpressionAttributeNames || {});
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')
+      ).toBe(true);
       expect(result).toBe(chain);
     });
 
@@ -542,11 +577,17 @@ describe('Chain', () => {
 
       const result = chain.project(undefined as any);
 
-      expect(params.ProjectionExpression).toMatch(/^#attr_pk_\d+, #attr_sk_\d+$/);
+      expect(params.ProjectionExpression).toMatch(
+        /^#attr_pk_\d+, #attr_sk_\d+$/
+      );
       expect(params.ExpressionAttributeNames).toBeDefined();
       const nameKeys = Object.keys(params.ExpressionAttributeNames || {});
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')
+      ).toBe(true);
       expect(result).toBe(chain);
     });
 
@@ -561,12 +602,20 @@ describe('Chain', () => {
 
       const result = chain.project(['status']);
 
-      expect(params.ProjectionExpression).toMatch(/^#attr_pk_\d+, #attr_sk_\d+, #attr_status_\d+$/);
+      expect(params.ProjectionExpression).toMatch(
+        /^#attr_pk_\d+, #attr_sk_\d+, #attr_status_\d+$/
+      );
       expect(params.ExpressionAttributeNames).toBeDefined();
       const nameKeys = Object.keys(params.ExpressionAttributeNames || {});
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')).toBe(true);
-      expect(nameKeys.some(k => params.ExpressionAttributeNames![k] === 'status')).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'pk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'sk')
+      ).toBe(true);
+      expect(
+        nameKeys.some(k => params.ExpressionAttributeNames![k] === 'status')
+      ).toBe(true);
       expect(result).toBe(chain);
     });
 
@@ -588,7 +637,9 @@ describe('Chain', () => {
       const result = chain.project(['status']);
 
       expect(testParams.ExpressionAttributeNames).toBeDefined();
-      expect(Object.keys(testParams.ExpressionAttributeNames || {}).length).toBeGreaterThan(0);
+      expect(
+        Object.keys(testParams.ExpressionAttributeNames || {}).length
+      ).toBeGreaterThan(0);
       expect(result).toBe(chain);
     });
   });
@@ -687,7 +738,6 @@ describe('Chain', () => {
 
     it('uses else branch when ExpressionAttributeNames already exists', () => {
       const testParams: CommandInput = {
-
         Limit: 10,
         TableName: 'TestTable',
         KeyConditionExpression: '#pk = :pk',
@@ -713,7 +763,6 @@ describe('Chain', () => {
 
     it('initializes ExpressionAttributeNames when missing (does not merge filter names)', () => {
       const testParams: CommandInput = {
-
         Limit: 10,
         TableName: 'TestTable',
         KeyConditionExpression: '#pk = :pk',
@@ -784,7 +833,6 @@ describe('Chain', () => {
 
     it('sets ExpressionAttributeValues when params does not have ExpressionAttributeValues', () => {
       const testParams: CommandInput = {
-
         Limit: 10,
         TableName: 'TestTable',
         KeyConditionExpression: '#pk = :pk',
@@ -819,12 +867,16 @@ describe('Chain', () => {
           '#pk': 'pk',
         })
       );
-      // We can't predict the exact keys for names/values because of the counter, 
+      // We can't predict the exact keys for names/values because of the counter,
       // but we can check if they exist and have correct values
-      const nameKey = Object.keys(params.ExpressionAttributeNames!).find(k => params.ExpressionAttributeNames![k] === 'status');
+      const nameKey = Object.keys(params.ExpressionAttributeNames!).find(
+        k => params.ExpressionAttributeNames![k] === 'status'
+      );
       expect(nameKey).toBeDefined();
 
-      const valueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].S === 'active');
+      const valueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].S === 'active'
+      );
       expect(valueKey).toBeDefined();
     });
 
@@ -836,10 +888,14 @@ describe('Chain', () => {
 
       expect(params.FilterExpression).toMatch(/#age_\d+ >= :val_age_\d+_/);
 
-      const nameKey = Object.keys(params.ExpressionAttributeNames!).find(k => params.ExpressionAttributeNames![k] === 'age');
+      const nameKey = Object.keys(params.ExpressionAttributeNames!).find(
+        k => params.ExpressionAttributeNames![k] === 'age'
+      );
       expect(nameKey).toBeDefined();
 
-      const valueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].N === '18');
+      const valueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].N === '18'
+      );
       expect(valueKey).toBeDefined();
     });
 
@@ -849,7 +905,9 @@ describe('Chain', () => {
 
       chain.filter(filterObject);
 
-      expect(params.FilterExpression).toMatch(/#status_\d+ = :val_status_\d+ AND #age_\d+ > :val_age_\d+_/);
+      expect(params.FilterExpression).toMatch(
+        /#status_\d+ = :val_status_\d+ AND #age_\d+ > :val_age_\d+_/
+      );
     });
 
     it('handles dot notation for nested attributes', () => {
@@ -858,7 +916,9 @@ describe('Chain', () => {
 
       chain.filter(filterObject);
 
-      const nameKey = Object.keys(params.ExpressionAttributeNames!).find(k => params.ExpressionAttributeNames![k] === 'address.city');
+      const nameKey = Object.keys(params.ExpressionAttributeNames!).find(
+        k => params.ExpressionAttributeNames![k] === 'address.city'
+      );
       expect(nameKey).toBeDefined();
       expect(nameKey).toMatch(/#address_city_\d+/);
     });
@@ -868,18 +928,24 @@ describe('Chain', () => {
       const filterObject = {
         isActive: true,
         count: 10,
-        description: null
+        description: null,
       };
 
       chain.filter(filterObject);
 
-      const boolValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].BOOL === true);
+      const boolValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].BOOL === true
+      );
       expect(boolValueKey).toBeDefined();
 
-      const numValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].N === '10');
+      const numValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].N === '10'
+      );
       expect(numValueKey).toBeDefined();
 
-      const nullValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].NULL === true);
+      const nullValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].NULL === true
+      );
       expect(nullValueKey).toBeDefined();
     });
 
@@ -892,10 +958,14 @@ describe('Chain', () => {
 
       chain.filter(filterObject);
 
-      const statusValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].S === 'active');
+      const statusValueKey = Object.keys(
+        params.ExpressionAttributeValues!
+      ).find(k => params.ExpressionAttributeValues![k].S === 'active');
       expect(statusValueKey).toBeDefined();
 
-      const nameValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].S === 'test');
+      const nameValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].S === 'test'
+      );
       expect(nameValueKey).toBeDefined();
     });
 
@@ -911,19 +981,27 @@ describe('Chain', () => {
       chain.filter(filterObject);
 
       // Check number value
-      const numValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].N === '18');
+      const numValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].N === '18'
+      );
       expect(numValueKey).toBeDefined();
 
       // Check boolean value
-      const boolValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].BOOL === true);
+      const boolValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].BOOL === true
+      );
       expect(boolValueKey).toBeDefined();
 
       // Check null value
-      const nullValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].NULL === true);
+      const nullValueKey = Object.keys(params.ExpressionAttributeValues!).find(
+        k => params.ExpressionAttributeValues![k].NULL === true
+      );
       expect(nullValueKey).toBeDefined();
 
       // Check string value
-      const stringValueKey = Object.keys(params.ExpressionAttributeValues!).find(k => params.ExpressionAttributeValues![k].S === 'A');
+      const stringValueKey = Object.keys(
+        params.ExpressionAttributeValues!
+      ).find(k => params.ExpressionAttributeValues![k].S === 'A');
       expect(stringValueKey).toBeDefined();
     });
 
@@ -946,8 +1024,8 @@ describe('Chain', () => {
 
     it('handles filter with multiple operators on same field', () => {
       const chain = new Chain(params, 'query', schemaFormatter, client);
-      const filterObject = { 
-        age: { '>': 18, '<': 65 } as any 
+      const filterObject = {
+        age: { '>': 18, '<': 65 } as any,
       };
 
       chain.filter(filterObject);
@@ -961,8 +1039,8 @@ describe('Chain', () => {
 
     it('handles filter with operator value as undefined', () => {
       const chain = new Chain(params, 'query', schemaFormatter, client);
-      const filterObject = { 
-        age: { '>=': undefined as any } 
+      const filterObject = {
+        age: { '>=': undefined as any },
       };
 
       chain.filter(filterObject);
@@ -1050,7 +1128,9 @@ describe('Chain', () => {
         const result = query.whereSKequal(sk);
 
         // The compare method checks typeof skparams.value === 'number'
-        expect(numberParams.ExpressionAttributeValues![':sk']).toEqual({ N: '123' });
+        expect(numberParams.ExpressionAttributeValues![':sk']).toEqual({
+          N: '123',
+        });
         expect(result).toBeInstanceOf(Query);
       });
     });
@@ -1108,11 +1188,15 @@ describe('Chain', () => {
         const query = new Query(params, schemaFormatter, client);
         const partialSk = { category: 'test' };
 
-        jest.spyOn(schemaFormatter, 'formatPartialOrderedSK').mockReturnValue('test');
+        jest
+          .spyOn(schemaFormatter, 'formatPartialOrderedSK')
+          .mockReturnValue('test');
 
         const result = query.whereSKBeginsWith(partialSk);
 
-        expect(params.KeyConditionExpression).toContain('AND begins_with(#sk, :sk)');
+        expect(params.KeyConditionExpression).toContain(
+          'AND begins_with(#sk, :sk)'
+        );
         expect(params.ExpressionAttributeValues![':sk']).toEqual({ S: 'test' });
         expect(result).toBeInstanceOf(Query);
       });
@@ -1163,9 +1247,15 @@ describe('Chain', () => {
 
         const result = query.whereSKBetween(sk1, sk2);
 
-        expect(testParams.KeyConditionExpression).toContain('AND #sk between :low and :high');
-        expect(testParams.ExpressionAttributeValues![':low']).toEqual({ S: 'test1' });
-        expect(testParams.ExpressionAttributeValues![':high']).toEqual({ S: 'test2' });
+        expect(testParams.KeyConditionExpression).toContain(
+          'AND #sk between :low and :high'
+        );
+        expect(testParams.ExpressionAttributeValues![':low']).toEqual({
+          S: 'test1',
+        });
+        expect(testParams.ExpressionAttributeValues![':high']).toEqual({
+          S: 'test2',
+        });
         expect(result).toBeInstanceOf(Query);
       });
 

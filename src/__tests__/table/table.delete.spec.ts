@@ -835,8 +835,18 @@ describe('Table.deletePartition', () => {
         sortAscending: jest.fn().mockReturnThis(),
         run: jest.fn().mockResolvedValue({
           items: [
-            { tenantId: 'tenant1', userId: 'user1', sort: 'sort1', message: 'test1' },
-            { tenantId: 'tenant1', userId: 'user1', sort: 'sort2', message: 'test2' },
+            {
+              tenantId: 'tenant1',
+              userId: 'user1',
+              sort: 'sort1',
+              message: 'test1',
+            },
+            {
+              tenantId: 'tenant1',
+              userId: 'user1',
+              sort: 'sort2',
+              message: 'test2',
+            },
           ],
           hasNext: false,
           lastEvaluatedKey: undefined,
@@ -875,24 +885,33 @@ describe('Table.deletePartition', () => {
         filter: jest.fn().mockReturnThis(),
         sortAscending: jest.fn().mockReturnThis(),
         pivot: jest.fn().mockReturnThis(),
-        run: jest.fn()
+        run: jest
+          .fn()
           .mockResolvedValueOnce({
-            items: Array(25).fill(null).map((_, i) => ({
+            items: Array(25)
+              .fill(null)
+              .map((_, i) => ({
+                tenantId: 'tenant1',
+                userId: 'user1',
+                sort: `sort${i}`,
+                message: `test${i}`,
+              })),
+            hasNext: true,
+            lastEvaluatedKey: {
               tenantId: 'tenant1',
               userId: 'user1',
-              sort: `sort${i}`,
-              message: `test${i}`,
-            })),
-            hasNext: true,
-            lastEvaluatedKey: { tenantId: 'tenant1', userId: 'user1', sort: 'sort24' },
+              sort: 'sort24',
+            },
           })
           .mockResolvedValueOnce({
-            items: Array(5).fill(null).map((_, i) => ({
-              tenantId: 'tenant1',
-              userId: 'user1',
-              sort: `sort${i + 25}`,
-              message: `test${i + 25}`,
-            })),
+            items: Array(5)
+              .fill(null)
+              .map((_, i) => ({
+                tenantId: 'tenant1',
+                userId: 'user1',
+                sort: `sort${i + 25}`,
+                message: `test${i + 25}`,
+              })),
             hasNext: false,
             lastEvaluatedKey: undefined,
           }),
@@ -919,7 +938,12 @@ describe('Table.deletePartition', () => {
         sortAscending: jest.fn().mockReturnThis(),
         run: jest.fn().mockResolvedValue({
           items: [
-            { tenantId: 'tenant1', userId: 'user1', sort: 'sort1', message: 'test1' },
+            {
+              tenantId: 'tenant1',
+              userId: 'user1',
+              sort: 'sort1',
+              message: 'test1',
+            },
           ],
           hasNext: false,
           lastEvaluatedKey: undefined,
@@ -927,7 +951,9 @@ describe('Table.deletePartition', () => {
       } as any;
 
       jest.spyOn(table, 'query').mockReturnValue(queryMock);
-      jest.spyOn(table, 'deleteBatch').mockRejectedValue(new Error('Delete failed'));
+      jest
+        .spyOn(table, 'deleteBatch')
+        .mockRejectedValue(new Error('Delete failed'));
 
       await expect(
         table.deleteWithCondition({
@@ -945,7 +971,12 @@ describe('Table.deletePartition', () => {
         sortAscending: jest.fn().mockReturnThis(),
         run: jest.fn().mockResolvedValue({
           items: [
-            { tenantId: 'tenant1', userId: 'user1', sort: 'sort1', message: 'test1' },
+            {
+              tenantId: 'tenant1',
+              userId: 'user1',
+              sort: 'sort1',
+              message: 'test1',
+            },
           ],
           hasNext: false,
           lastEvaluatedKey: undefined,
@@ -997,12 +1028,14 @@ describe('Table.deletePartition', () => {
         whereSKequal: jest.fn().mockReturnThis(),
         sortAscending: jest.fn().mockReturnThis(),
         run: jest.fn().mockResolvedValue({
-          items: Array(30).fill(null).map((_, i) => ({
-            tenantId: 'tenant1',
-            userId: 'user1',
-            sort: `sort${i}`,
-            message: `test${i}`,
-          })),
+          items: Array(30)
+            .fill(null)
+            .map((_, i) => ({
+              tenantId: 'tenant1',
+              userId: 'user1',
+              sort: `sort${i}`,
+              message: `test${i}`,
+            })),
           hasNext: false,
           lastEvaluatedKey: undefined,
         }),

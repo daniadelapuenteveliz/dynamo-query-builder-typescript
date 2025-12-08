@@ -51,22 +51,29 @@ async function testMetadata(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (tableName !== 'tabla2') {
     throw new Error('Table name is not correct');
   }
-  console.log("table name is correct", tableName);
+  console.log('table name is correct', tableName);
   const tableInDynamo = await tablaDePrueba.getTableNameInDynamo();
   if (tableInDynamo !== 'tabla2') {
     throw new Error('Table name in dynamo is not correct');
   }
-  console.log("table name in dynamo is correct", tableInDynamo);
+  console.log('table name in dynamo is correct', tableInDynamo);
   const dynamoKeySchema: any = await tablaDePrueba.getDynamoKeySchema();
-  if (dynamoKeySchema[0].AttributeName !== 'A#B#C#D' || dynamoKeySchema[0].KeyType !== 'HASH') {
+  if (
+    dynamoKeySchema[0].AttributeName !== 'A#B#C#D' ||
+    dynamoKeySchema[0].KeyType !== 'HASH'
+  ) {
     throw new Error('Timestamp is not correct in dynamo key schema');
   }
-  if (dynamoKeySchema[1].AttributeName !== 'E#F#G#H' || dynamoKeySchema[1].KeyType !== 'RANGE') {
+  if (
+    dynamoKeySchema[1].AttributeName !== 'E#F#G#H' ||
+    dynamoKeySchema[1].KeyType !== 'RANGE'
+  ) {
     throw new Error('timestamp#count is not correct in dynamo key schema');
   }
-  console.log("dynamo key schema is correct");
+  console.log('dynamo key schema is correct');
   try {
-    const globalSecondaryIndexes = await tablaDePrueba.getGlobalSecondaryIndexes();
+    const globalSecondaryIndexes =
+      await tablaDePrueba.getGlobalSecondaryIndexes();
     console.log(globalSecondaryIndexes);
   } catch (error: any) {
     console.log(error.code);
@@ -78,23 +85,35 @@ async function testMetadata(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
 async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   const item: itemDto = {
-    A: "a",
-    B: "b",
-    C: "c",
-    D: "d",
-    E: "e",
-    F: "f",
-    G: "g",
-    H: "h",
-    I: "i",
-    J: "j"
+    A: 'a',
+    B: 'b',
+    C: 'c',
+    D: 'd',
+    E: 'e',
+    F: 'f',
+    G: 'g',
+    H: 'h',
+    I: 'i',
+    J: 'j',
   };
 
   await tablaDePrueba.put(item);
 
-  const testItem1 = await tablaDePrueba.getOne({ A: "a", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" });
+  const testItem1 = await tablaDePrueba.getOne(
+    { A: 'a', B: 'b', C: 'c', D: 'd' },
+    { E: 'e', F: 'f', G: 'g', H: 'h' }
+  );
   console.log(testItem1);
-  if (testItem1.A !== "a" || testItem1.B !== "b" || testItem1.C !== "c" || testItem1.D !== "d" || testItem1.E !== "e" || testItem1.F !== "f" || testItem1.G !== "g" || testItem1.H !== "h") {
+  if (
+    testItem1.A !== 'a' ||
+    testItem1.B !== 'b' ||
+    testItem1.C !== 'c' ||
+    testItem1.D !== 'd' ||
+    testItem1.E !== 'e' ||
+    testItem1.F !== 'f' ||
+    testItem1.G !== 'g' ||
+    testItem1.H !== 'h'
+  ) {
     throw new Error('Item is not correct');
   }
 
@@ -115,14 +134,35 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   //update and check
-  await tablaDePrueba.update({ A: "a", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" }, { I: "i2", J: "j2" });
-  const testItem2 = await tablaDePrueba.getOne({ A: "a", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" });
+  await tablaDePrueba.update(
+    { A: 'a', B: 'b', C: 'c', D: 'd' },
+    { E: 'e', F: 'f', G: 'g', H: 'h' },
+    { I: 'i2', J: 'j2' }
+  );
+  const testItem2 = await tablaDePrueba.getOne(
+    { A: 'a', B: 'b', C: 'c', D: 'd' },
+    { E: 'e', F: 'f', G: 'g', H: 'h' }
+  );
   console.log(testItem2);
-  if (testItem2.A !== "a" || testItem2.B !== "b" || testItem2.C !== "c" || testItem2.D !== "d" || testItem2.E !== "e" || testItem2.F !== "f" || testItem2.G !== "g" || testItem2.H !== "h" || testItem2.I !== "i2" || testItem2.J !== "j2") {
+  if (
+    testItem2.A !== 'a' ||
+    testItem2.B !== 'b' ||
+    testItem2.C !== 'c' ||
+    testItem2.D !== 'd' ||
+    testItem2.E !== 'e' ||
+    testItem2.F !== 'f' ||
+    testItem2.G !== 'g' ||
+    testItem2.H !== 'h' ||
+    testItem2.I !== 'i2' ||
+    testItem2.J !== 'j2'
+  ) {
     throw new Error('Item is not correct');
   }
   //delete and scan and check that no items are present
-  await tablaDePrueba.delete({ A: "a", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" });
+  await tablaDePrueba.delete(
+    { A: 'a', B: 'b', C: 'c', D: 'd' },
+    { E: 'e', F: 'f', G: 'g', H: 'h' }
+  );
   const scanResult2 = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult2.items.length !== 0) {
     throw new Error('Scan result is not correct');
@@ -130,7 +170,11 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   //update item that does not exist
   try {
-    await tablaDePrueba.update({ A: "b", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" }, { I: "i2", J: "j2" });
+    await tablaDePrueba.update(
+      { A: 'b', B: 'b', C: 'c', D: 'd' },
+      { E: 'e', F: 'f', G: 'g', H: 'h' },
+      { I: 'i2', J: 'j2' }
+    );
   } catch (error: any) {
     console.log(error.code);
     if (error.code !== 'ITEM_DOES_NOT_EXIST') {
@@ -140,7 +184,10 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   //try delete item that does not exist
   try {
-    await tablaDePrueba.delete({ A: "b", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" });
+    await tablaDePrueba.delete(
+      { A: 'b', B: 'b', C: 'c', D: 'd' },
+      { E: 'e', F: 'f', G: 'g', H: 'h' }
+    );
   } catch (error: any) {
     console.log(error.code);
     if (error.code !== 'ITEM_DOES_NOT_EXIST') {
@@ -149,13 +196,15 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   //delete and check with scan
-  await tablaDePrueba.delete({ A: "a", B: "b", C: "c", D: "d" }, { E: "e", F: "f", G: "g", H: "h" });
+  await tablaDePrueba.delete(
+    { A: 'a', B: 'b', C: 'c', D: 'd' },
+    { E: 'e', F: 'f', G: 'g', H: 'h' }
+  );
   const scanResult3 = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult3.items.length !== 0) {
     throw new Error('Scan result is not correct');
   }
   console.log('delete and check with scan test completed successfully');
-
 }
 
 async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
@@ -170,8 +219,8 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   const item1: PutItemCommandInput = {
     TableName: 'tabla2',
     Item: {
-      "A#B#C#D": { S: 'a1#b#c#d' },
-      "E#F#G#H": { S: 'e#f#g#h' },
+      'A#B#C#D': { S: 'a1#b#c#d' },
+      'E#F#G#H': { S: 'e#f#g#h' },
       I: { S: 'i' },
       J: { S: 'j' },
     },
@@ -205,8 +254,8 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
     items10.push({
       TableName: 'tabla2',
       Item: {
-        "A#B#C#D": { S: 'a2#b#c#d' },
-        "E#F#G#H": { S: 'e#f#g#h' + (i < 10 ? `0${i}` : String(i)) },
+        'A#B#C#D': { S: 'a2#b#c#d' },
+        'E#F#G#H': { S: 'e#f#g#h' + (i < 10 ? `0${i}` : String(i)) },
         I: { S: 'i' + (i < 10 ? `0${i}` : String(i)) },
         J: { S: 'j' + (i < 10 ? `0${i}` : String(i)) },
       },
@@ -231,7 +280,17 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   // Verify all 10 items are present
   for (let i = 1; i <= 10; i++) {
     const found = partitionBatch.items.find(
-      (item) => item.A === 'a2' && item.B === 'b' && item.C === 'c' && item.D === 'd' && item.E === 'e' && item.F === 'f' && item.G === 'g' && item.H === 'h' + (i < 10 ? `0${i}` : String(i)) && item.I === 'i' + (i < 10 ? `0${i}` : String(i)) && item.J === 'j' + (i < 10 ? `0${i}` : String(i))
+      item =>
+        item.A === 'a2' &&
+        item.B === 'b' &&
+        item.C === 'c' &&
+        item.D === 'd' &&
+        item.E === 'e' &&
+        item.F === 'f' &&
+        item.G === 'g' &&
+        item.H === 'h' + (i < 10 ? `0${i}` : String(i)) &&
+        item.I === 'i' + (i < 10 ? `0${i}` : String(i)) &&
+        item.J === 'j' + (i < 10 ? `0${i}` : String(i))
     );
     if (!found) {
       throw new Error(`Item with count ${i} not found`);
@@ -244,8 +303,8 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
     items60.push({
       TableName: 'tabla2',
       Item: {
-        "A#B#C#D": { S: 'a3#b#c#d' },
-        "E#F#G#H": { S: 'e#f#g#h' + (i < 10 ? `0${i}` : String(i)) },
+        'A#B#C#D': { S: 'a3#b#c#d' },
+        'E#F#G#H': { S: 'e#f#g#h' + (i < 10 ? `0${i}` : String(i)) },
         I: { S: 'i' + (i < 10 ? `0${i}` : String(i)) },
         J: { S: 'j' + (i < 10 ? `0${i}` : String(i)) },
       },
@@ -286,10 +345,14 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
     hasMore = batch.hasNext;
     pageCount++;
 
-    console.log(`Page ${pageCount}: Retrieved ${batch.items.length} items, hasNext: ${hasMore}`);
+    console.log(
+      `Page ${pageCount}: Retrieved ${batch.items.length} items, hasNext: ${hasMore}`
+    );
   }
 
-  console.log(`Total items retrieved: ${allItems.length} in ${pageCount} pages`);
+  console.log(
+    `Total items retrieved: ${allItems.length} in ${pageCount} pages`
+  );
   if (allItems.length !== 60) {
     throw new Error(`Expected 60 items, got ${allItems.length}`);
   }
@@ -297,10 +360,22 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   // Verify all 60 items are present
   for (let i = 1; i <= 60; i++) {
     const found = allItems.find(
-      (item) => item.A === 'a3' && item.B === 'b' && item.C === 'c' && item.D === 'd' && item.E === 'e' && item.F === 'f' && item.G === 'g' && item.H === 'h' + (i < 10 ? `0${i}` : String(i)) && item.I === 'i' + (i < 10 ? `0${i}` : String(i)) && item.J === 'j' + (i < 10 ? `0${i}` : String(i))
+      item =>
+        item.A === 'a3' &&
+        item.B === 'b' &&
+        item.C === 'c' &&
+        item.D === 'd' &&
+        item.E === 'e' &&
+        item.F === 'f' &&
+        item.G === 'g' &&
+        item.H === 'h' + (i < 10 ? `0${i}` : String(i)) &&
+        item.I === 'i' + (i < 10 ? `0${i}` : String(i)) &&
+        item.J === 'j' + (i < 10 ? `0${i}` : String(i))
     );
     if (!found) {
-      throw new Error(`Item with count ${i} (${i < 10 ? `0${i}` : String(i)}) not found`);
+      throw new Error(
+        `Item with count ${i} (${i < 10 ? `0${i}` : String(i)}) not found`
+      );
     }
   }
 
@@ -317,11 +392,10 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 async function main() {
   const client = new DynamoClient(config);
   const nombreTabla = 'tabla2';
-  const tablaDePrueba = client.table<
-    pkDto,
-    skDto,
-    dataDto
-  >(nombreTabla, keySchema);
+  const tablaDePrueba = client.table<pkDto, skDto, dataDto>(
+    nombreTabla,
+    keySchema
+  );
   await tablaDePrueba.flush();
   const scanResult4 = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult4.items.length !== 0) {

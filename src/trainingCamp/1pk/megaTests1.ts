@@ -38,19 +38,23 @@ async function testMetadata(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   if (tableName !== 'tabla3') {
     throw new Error('Table name is not correct');
   }
-  console.log("table name is correct", tableName);
+  console.log('table name is correct', tableName);
   const tableInDynamo = await tablaDePrueba.getTableNameInDynamo();
   if (tableInDynamo !== 'tabla3') {
     throw new Error('Table name in dynamo is not correct');
   }
-  console.log("table name in dynamo is correct", tableInDynamo);
+  console.log('table name in dynamo is correct', tableInDynamo);
   const dynamoKeySchema: any = await tablaDePrueba.getDynamoKeySchema();
-  if (dynamoKeySchema[0].AttributeName !== 'timestamp' || dynamoKeySchema[0].KeyType !== 'HASH') {
+  if (
+    dynamoKeySchema[0].AttributeName !== 'timestamp' ||
+    dynamoKeySchema[0].KeyType !== 'HASH'
+  ) {
     throw new Error('Timestamp is not correct in dynamo key schema');
   }
-  console.log("dynamo key schema is correct");
+  console.log('dynamo key schema is correct');
   try {
-    const globalSecondaryIndexes = await tablaDePrueba.getGlobalSecondaryIndexes();
+    const globalSecondaryIndexes =
+      await tablaDePrueba.getGlobalSecondaryIndexes();
     console.log(globalSecondaryIndexes);
   } catch (error: any) {
     console.log(error.code);
@@ -62,16 +66,20 @@ async function testMetadata(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
 async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   const item: itemDto = {
-    timestamp: "1",
+    timestamp: '1',
     A: 1,
-    B: "test",
+    B: 'test',
   };
 
   await tablaDePrueba.put(item);
 
-  const testItem1 = await tablaDePrueba.getOne({ timestamp: "1" }, {});
+  const testItem1 = await tablaDePrueba.getOne({ timestamp: '1' }, {});
   console.log(testItem1);
-  if (testItem1.timestamp !== "1" || testItem1.A !== 1 || testItem1.B !== "test") {
+  if (
+    testItem1.timestamp !== '1' ||
+    testItem1.A !== 1 ||
+    testItem1.B !== 'test'
+  ) {
     throw new Error('Item is not correct');
   }
 
@@ -92,14 +100,18 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   }
 
   //update and check
-  await tablaDePrueba.update({ timestamp: "1" }, {}, { A: 2, B: "test2" });
-  const testItem2 = await tablaDePrueba.getOne({ timestamp: "1" }, {});
+  await tablaDePrueba.update({ timestamp: '1' }, {}, { A: 2, B: 'test2' });
+  const testItem2 = await tablaDePrueba.getOne({ timestamp: '1' }, {});
   console.log(testItem2);
-  if (testItem2.timestamp !== "1" || testItem2.A !== 2 || testItem2.B !== "test2") {
+  if (
+    testItem2.timestamp !== '1' ||
+    testItem2.A !== 2 ||
+    testItem2.B !== 'test2'
+  ) {
     throw new Error('Item is not correct');
   }
   //delete and scan and check that no items are present
-  await tablaDePrueba.delete({ timestamp: "1" }, {});
+  await tablaDePrueba.delete({ timestamp: '1' }, {});
   const scanResult2 = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult2.items.length !== 0) {
     throw new Error('Scan result is not correct');
@@ -107,7 +119,7 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   //update item that does not exist
   try {
-    await tablaDePrueba.update({ timestamp: "2" }, {}, { A: 3, B: "test3" });
+    await tablaDePrueba.update({ timestamp: '2' }, {}, { A: 3, B: 'test3' });
   } catch (error: any) {
     console.log(error.code);
     if (error.code !== 'ITEM_DOES_NOT_EXIST') {
@@ -117,14 +129,13 @@ async function testPut(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 
   //try delete item that does not exist
   try {
-    await tablaDePrueba.delete({ timestamp: "2" }, {});
+    await tablaDePrueba.delete({ timestamp: '2' }, {});
   } catch (error: any) {
     console.log(error.code);
     if (error.code !== 'ITEM_DOES_NOT_EXIST') {
       throw error;
     }
   }
-
 }
 
 async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
@@ -147,10 +158,7 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
   await tablaDePrueba.putRaw(item1);
 
   // Get and assert that the object is there
-  const retrievedItem1 = await tablaDePrueba.getOne(
-    { timestamp: '00' },
-    {}
-  );
+  const retrievedItem1 = await tablaDePrueba.getOne({ timestamp: '00' }, {});
   console.log('Retrieved item 1:', retrievedItem1);
   if (
     retrievedItem1.timestamp !== '00' ||
@@ -201,7 +209,6 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
     }
   }
 
-
   //delete all items
   for (let i = 0; i <= 10; i++) {
     await tablaDePrueba.delete({ timestamp: String(i).padStart(2, '0') }, {});
@@ -217,11 +224,10 @@ async function putRaw(tablaDePrueba: Table<pkDto, skDto, dataDto>) {
 async function main() {
   const client = new DynamoClient(config);
   const nombreTabla = 'tabla3';
-  const tablaDePrueba = client.table<
-    pkDto,
-    skDto,
-    dataDto
-  >(nombreTabla, keySchema);
+  const tablaDePrueba = client.table<pkDto, skDto, dataDto>(
+    nombreTabla,
+    keySchema
+  );
   await tablaDePrueba.flush();
   const scanResult4 = await tablaDePrueba.scan({ limit: 10 }).run();
   if (scanResult4.items.length !== 0) {

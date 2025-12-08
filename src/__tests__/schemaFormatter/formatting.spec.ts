@@ -216,7 +216,7 @@ describe('formatting', () => {
 
       expect(record).toEqual(
         marshall(
-          { pk: 'abc', value: "42", flag: "true" },
+          { pk: 'abc', value: '42', flag: 'true' },
           { removeUndefinedValues: true }
         )
       );
@@ -428,11 +428,11 @@ describe('formatting', () => {
     it('formatPaginationResult delegates to empty formatter when no items', () => {
       const spy = jest.spyOn(formatter as any, 'formatEmptyPaginationResult');
       const result = formatter.formatPaginationResult(
-        [], 
-        5, 
+        [],
+        5,
         'forward',
         undefined,
-        undefined,
+        undefined
       );
 
       expect(spy).toHaveBeenCalledWith('forward', undefined);
@@ -450,11 +450,11 @@ describe('formatting', () => {
     it('formatPaginationResult tracks navigation flags and trims extra item for next page', () => {
       const items = [{ id: '1' }, { id: '2' }, { id: '3' }];
       const result = formatter.formatPaginationResult(
-        items.slice(), 
+        items.slice(),
         3,
         'backward',
         { id: '3' },
-        { id: '1' },
+        { id: '1' }
       );
 
       expect(result.direction).toBe('backward');
@@ -473,7 +473,7 @@ describe('formatting', () => {
         3,
         'forward',
         { id: '101' },
-        undefined,
+        undefined
       );
 
       expect(result.direction).toBe('forward');
@@ -493,7 +493,7 @@ describe('formatting', () => {
         3,
         'forward',
         { id: '3' },
-        undefined,
+        undefined
       );
 
       expect(result.hasNext).toBe(true);
@@ -510,7 +510,7 @@ describe('formatting', () => {
         4,
         'forward',
         { id: '4' },
-        undefined,
+        undefined
       );
 
       expect(result.hasNext).toBe(true);
@@ -528,7 +528,7 @@ describe('formatting', () => {
         5,
         'forward',
         { id: '2' },
-        undefined,
+        undefined
       );
 
       expect(result.hasNext).toBe(true);
@@ -547,7 +547,7 @@ describe('formatting', () => {
         1,
         'forward',
         { id: '1' },
-        undefined,
+        undefined
       );
 
       expect(result.hasNext).toBe(true);
@@ -563,7 +563,7 @@ describe('formatting', () => {
         5,
         'forward',
         { id: '2' },
-        { id: '0' },
+        { id: '0' }
       );
 
       expect(result.hasPrevious).toBe(true);
@@ -578,7 +578,7 @@ describe('formatting', () => {
         5,
         'forward',
         { id: '2' },
-        undefined,
+        undefined
       );
 
       expect(result.hasPrevious).toBe(false);
@@ -592,7 +592,7 @@ describe('formatting', () => {
         5,
         'forward',
         undefined,
-        undefined,
+        undefined
       );
 
       expect(result.lastEvaluatedKey).toEqual({ id: '2' });
@@ -607,7 +607,7 @@ describe('formatting', () => {
         5,
         'forward',
         lastKey,
-        undefined,
+        undefined
       );
 
       expect(result.lastEvaluatedKey).toEqual(lastKey);
@@ -621,7 +621,7 @@ describe('formatting', () => {
         3,
         'backward',
         { id: '0' },
-        { id: '2' },
+        { id: '2' }
       );
 
       expect(result.direction).toBe('backward');
@@ -638,7 +638,7 @@ describe('formatting', () => {
         3,
         'forward',
         { id: '0' },
-        { id: '2' },
+        { id: '2' }
       );
 
       expect(result.direction).toBe('forward');
@@ -656,7 +656,7 @@ describe('formatting', () => {
         10,
         'forward',
         undefined,
-        { id: '9' },
+        { id: '9' }
       );
 
       expect(result.hasNext).toBe(true);
@@ -683,7 +683,7 @@ describe('formatting', () => {
         3,
         'forward',
         { id: '3' },
-        { id: '0' },
+        { id: '0' }
       );
 
       expect(result.hasPrevious).toBe(true);
@@ -699,14 +699,14 @@ describe('formatting', () => {
         5,
         'forward',
         undefined,
-        undefined,
+        undefined
       );
       const backwardResult = formatter.formatPaginationResult(
         [],
         5,
         'backward',
         { id: '0' },
-        undefined,
+        undefined
       );
 
       expect(forwardResult.direction).toBe('forward');
@@ -725,7 +725,7 @@ describe('formatting', () => {
         4,
         'forward',
         undefined,
-        { id: '4' },
+        { id: '4' }
       );
 
       // Count should reflect the items after pop
@@ -981,7 +981,9 @@ describe('formatting', () => {
           keys: ['id'],
         },
       };
-      const formatter = new SchemaFormatter<OnlyPk, dummySk, dummyData>(schemaWithoutSk);
+      const formatter = new SchemaFormatter<OnlyPk, dummySk, dummyData>(
+        schemaWithoutSk
+      );
       const item: ItemOf<OnlyPk, dummySk, dummyData> = {
         id: 'id1',
         value: 'value1',
