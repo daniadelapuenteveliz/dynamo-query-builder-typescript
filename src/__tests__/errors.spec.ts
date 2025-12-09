@@ -95,15 +95,15 @@ describe('DynamoErrorFactory handler helpers', () => {
     );
   });
 
-  it('handleputIBatchError maps known messages to validation errors', () => {
+  it('handlePutItemBatchError maps known messages to validation errors', () => {
     expect(() =>
-      DynamoErrorFactory.handleputIBatchError(
+      DynamoErrorFactory.handlePutItemBatchError(
         new Error('ConditionalCheckFailed: duplicate')
       )
     ).toThrowError(ValidationError);
 
     try {
-      DynamoErrorFactory.handleputIBatchError(
+      DynamoErrorFactory.handlePutItemBatchError(
         new Error(
           'Transaction request cannot include multiple operations on one item'
         )
@@ -116,7 +116,7 @@ describe('DynamoErrorFactory handler helpers', () => {
     }
 
     const unexpected = new Error('Unexpected batch failure');
-    expect(() => DynamoErrorFactory.handleputIBatchError(unexpected)).toThrow(
+    expect(() => DynamoErrorFactory.handlePutItemBatchError(unexpected)).toThrow(
       unexpected
     );
   });

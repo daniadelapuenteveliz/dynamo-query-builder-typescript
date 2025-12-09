@@ -92,7 +92,7 @@ export class Table<
       };
       return await this.client.send(new TransactWriteItemsCommand(params));
     } catch (error: any) {
-      throw DynamoErrorFactory.handleputIBatchError(error);
+      throw DynamoErrorFactory.handlePutItemBatchError(error);
     }
   }
 
@@ -354,17 +354,17 @@ export class Table<
     query: Query<PK, SK, DataDto>,
     skCondition: SKCondition<SK>
   ): Query<PK, SK, DataDto> {
-    // Type guard para verificar si es un objeto con propiedades específicas
+    // Type guard to verify if it is an object with specific properties
     const isConditionObject = (obj: any): obj is Record<string, any> => {
       return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
     };
 
     if (!isConditionObject(skCondition)) {
-      // Si no es un objeto, es un SK directo (backward compatible)
+      // If not an object, it is a direct SK (backward compatible)
       return query.whereSKequal(skCondition as SK);
     }
 
-    // Verificar cada condición en orden de prioridad
+    // Check each condition in priority order
     if ('equal' in skCondition && skCondition.equal !== undefined) {
       return query.whereSKequal(skCondition.equal as SK);
     }
@@ -399,7 +399,7 @@ export class Table<
       return query.whereSKBetween(between.from, between.to);
     }
 
-    // Si no coincide con ninguna condición conocida, asumir que es un SK directo
+    // If it does not match any known condition, assume it is a direct SK
     return query.whereSKequal(skCondition as SK);
   }
 
@@ -435,7 +435,7 @@ export class Table<
   // ------------------------------ Update methods ------------------------------------
 
   /**
-   * update puntual columns of an item (using newData), however if override is true, it will overwrite the entire item
+   * update specific columns of an item (using newData), however if override is true, it will overwrite the entire item
    */
   async update(
     pk: PK,
@@ -451,7 +451,7 @@ export class Table<
   }
 
   /**
-   * update a item using a raw UpdateItemCommandInput (for power users).
+   * update an item using a raw UpdateItemCommandInput (for power users).
    */
   async updateRaw(
     updateItemCommandInput: UpdateItemCommandInput
@@ -485,7 +485,7 @@ export class Table<
   // ------------------------------ delete methods ------------------------------------
 
   /**
-   * delete a item by pk and sk
+   * delete an item by pk and sk
    */
   async delete(pk: PK, sk: SK): Promise<DeleteItemCommandOutput> {
     if (!pk) throw DynamoErrorFactory.pkRequired();
@@ -495,7 +495,7 @@ export class Table<
   }
 
   /**
-   * delete a item using a raw DeleteItemCommandInput (for power users).
+   * delete an item using a raw DeleteItemCommandInput (for power users).
    */
   async deleteRaw(
     deleteItemCommandInput: DeleteItemCommandInput
@@ -507,7 +507,7 @@ export class Table<
 
   /**
    * given a PK delete all items with that PK
-   * this method migth take a while to complete if there are a lot of items to delete
+   * this method might take a while to complete if there are a lot of items to delete
    */
   async deletePartition(pk: PK): Promise<void> {
     if (!pk) throw DynamoErrorFactory.pkRequired();
@@ -601,8 +601,8 @@ export class Table<
   }
 
   /**
-   * delete by pk and sk (the sk is optional only if it not exist in the schema) and can filter dynamo attributes
-   * (with a while loop till a limit given by the user is reached or all the pk and sk are readed).
+   * delete by pk and sk (the sk is optional only if it does not exist in the schema) and can filter dynamo attributes
+   * (with a while loop till a limit given by the user is reached or all the pk and sk are read).
    * @returns The number of items deleted
    */
   async deleteWithCondition(
@@ -746,7 +746,7 @@ export class Table<
   // ------------------------------ READ methods ---------------------------------------
 
   /**
-   * read a item by pk and sk
+   * read an item by pk and sk
    */
   async getOne(
     pk: PK,
@@ -800,8 +800,8 @@ export class Table<
   }
 
   /**
-   * search by pk and sk (the sk is optional only if it not exist in the schema) and can filter dynamo attributes
-   * (with a while loop till a limit given by the user is reached or all the pk and sk are readed).
+   * search by pk and sk (the sk is optional only if it does not exist in the schema) and can filter dynamo attributes
+   * (with a while loop till a limit given by the user is reached or all the pk and sk are read).
    */
   async search(
     searchParams: SearchParams<PK, SK, DataDto>

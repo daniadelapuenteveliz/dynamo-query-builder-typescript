@@ -1,10 +1,10 @@
 # dynamo-query-builder
 
-This library designed for managing objects stored in Amazon DynamoDB, laveragin partition key (PK) and sort key (SK) architecture for efficient data organization and querying.
+This library is designed for managing objects stored in Amazon DynamoDB, leveraging partition key (PK) and sort key (SK) architecture for efficient data organization and querying.
 
-## Connect DynamoDB
+## Connecting to DynamoDB
 
-First instance a `DynamoClient`. AWS credentials, can be provided in two ways:
+First, instantiate a `DynamoClient`. AWS credentials can be provided in two ways:
 
 ### 1: Explicit IAM Credentials
 Pass credentials directly in the configuration
@@ -65,7 +65,7 @@ PK = sender_id#channel
 SK = receiver_id#timestamp
 ```
 
-Important technicla notes: 
+Important technical notes: 
 - Any key can be written as A#B#C....
 - It is recommended to separate only the SK, since PK queries are not efficient (you would rely on scans with filters, which should be avoided unless strictly necessary).
 - SK queries are always prefix-based. You cannot query only C; you must include A#B#C. This is why maintaining a clear hierarchy (A > B > C…) is important.
@@ -73,7 +73,7 @@ Important technicla notes:
 
 
 ## KeySchema
-A KeySchema, defines how your PK and SK (optional) are constructed and represented in DynamoDB. Both PK and SK share the same structure:
+A KeySchema defines how your PK and SK (optional) are constructed and represented in DynamoDB. Both PK and SK share the same structure:
 
 - name: Actual key name on DynamoDB
 - keys: Ordered string list representing the A#B#C... notation.
@@ -193,7 +193,7 @@ const messageTable: Table<MessagePK, MessageSK, MessageData> =
 
 #### `put(item, override?)`
 
-Inserts single item. Fails if item already exist unless `override=true`. inserted item must contain PK and SK attributes.
+Inserts single item. Fails if item already exists unless `override=true`. Inserted item must contain PK and SK attributes.
 
 **Example:**
 ```typescript
@@ -209,7 +209,7 @@ await messageTable.put({
 ```
 #### `putBatch(items, override?)`
 
-Performs an atomic batch insert of multiple items (up to 25) If any item fails, the entire transaction is rolled back. inserted items must contain PK and SK attributes.
+Performs an atomic batch insert of multiple items (up to 25). If any item fails, the entire transaction is rolled back. Inserted items must contain PK and SK attributes.
 
 **Example:**
 ```typescript
@@ -223,7 +223,7 @@ await messageTable.putBatch(messages);
 
 #### `update(pk, sk, newData)`
 
-Updates specific attributes of an existing item. Only the fields provided in `newData` will be updated; other attributes remain unchanged. The item must exist. updated item must contain PK and SK attributes. Key attributes can't be updated.
+Updates specific attributes of an existing item. Only the fields provided in `newData` will be updated; other attributes remain unchanged. The item must exist. Updated item must contain PK and SK attributes. Key attributes can't be updated.
 
 **Example:**
 ```typescript
@@ -236,7 +236,7 @@ await messageTable.update(
 
 #### `updateBatch(updates)`
 
-Performs an atomic batch update of multiple items (up to 25). updated items must contain PK and SK attributes.
+Performs an atomic batch update of multiple items (up to 25). Updated items must contain PK and SK attributes.
 
 **Example:**
 ```typescript
@@ -357,7 +357,7 @@ const deletedCount = await messageTable.flush();
 
 #### `getOne(pk, sk, IndexName?)`
 
-Retrieves a single by PK and SK. Throws an error if the item is not found.
+Retrieves a single item by PK and SK. Throws an error if the item is not found.
 
 **Example:**
 ```typescript
@@ -571,7 +571,7 @@ Raw methods provide direct access to AWS SDK command inputs, bypassing the libra
 - `getAttributeDefinitions()` - Retrieves the attribute definitions from the table metadata.
 - `getGlobalSecondaryIndexes()` - Retrieves the Global Secondary Indexes (GSI) definitions from the table metadata.
 - `describe()` - Retrieves the complete table description from DynamoDB (includes all metadata: schema, indexes, throughput, etc.).
-- `getKeySchema()` -Returns the KeySchema configuration used by this table instance (the schema provided during table creation).
+- `getKeySchema()` - Returns the KeySchema configuration used by this table instance (the schema provided during table creation).
 
 ## What You CANNOT Do (for now...)
 - Change Metadata: Indexes (GSI, LSI), Payment method and Throughput settings.

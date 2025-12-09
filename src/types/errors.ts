@@ -209,7 +209,7 @@ export class DynamoErrorFactory {
     throw error;
   }
 
-  static handleputIBatchError(error: any): void {
+  static handlePutItemBatchError(error: any): void {
     if (error.message.includes('ConditionalCheckFailed')) {
       throw DynamoErrorFactory.conditionalCheckFailed(error.message);
     }

@@ -22,7 +22,7 @@ export interface Params<DataDto extends DataRec> {
   project?: ProjectDto<DataDto>;
 }
 
-export interface ScanParams<DataDto extends DataRec> extends Params<DataDto> {}
+export interface ScanParams<DataDto extends DataRec> extends Params<DataDto> { }
 
 export interface QueryParams<PK extends KeyRec, DataDto extends DataRec>
   extends Params<DataDto> {
@@ -60,7 +60,7 @@ export type FilterObject<DataDto> = {
 };
 
 export type SKCondition<SK extends KeyRec> =
-  | SK // equal por defecto (backward compatible)
+  | SK // equal by default (backward compatible)
   | { equal: SK }
   | { greaterThan: SK }
   | { lowerThan: SK }
@@ -89,7 +89,7 @@ export type DynamoScalar =
   | Array<DynamoScalar>
   | Object;
 
-interface DynamoList extends Array<DynamoValue> {}
+interface DynamoList extends Array<DynamoValue> { }
 type DynamoMap = { [key: string]: DynamoValue };
 type DynamoValue = DynamoScalar | DynamoList | DynamoMap;
 export interface KeySchema {
