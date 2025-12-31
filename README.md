@@ -171,13 +171,11 @@ const keySchema: KeySchema = {
     name: 'sender_channel',
     keys: ['sender_id', 'channel'],
     separator: '#',
-    type: 'string',
   },
   sk: {
     name: 'receiver_timestamp',
     keys: ['receiver_id', 'timestamp'],
     separator: '#',
-    type: 'string',
   },
   preserve: ['sender_id', 'channel', 'receiver_id'],
 };
