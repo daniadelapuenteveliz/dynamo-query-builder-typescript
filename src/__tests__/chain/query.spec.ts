@@ -482,4 +482,150 @@ describe('Query', () => {
       });
     });
   });
+
+  describe('IndexName with different SK', () => {
+    const keySchemaWithIndex: KeySchema = {
+      pk: {
+        name: 'pk',
+        keys: ['tenantId'],
+      },
+      sk: {
+        name: 'category#orderId',
+        keys: ['category', 'orderId'],
+        separator: '#',
+      },
+      indexes: {
+        GSI1: {
+          pk: {
+            name: 'gsi1pk',
+            keys: ['tenantId'],
+          },
+          sk: {
+            name: 'orderId#category',
+            keys: ['orderId', 'category'],
+            separator: '#',
+          },
+        },
+      },
+    };
+
+    it('uses index SK name in whereSKBeginsWith when IndexName is provided', () => {
+      const formatterWithIndex = new SchemaFormatter<PK, SK, Data>(keySchemaWithIndex);
+      const testParams: CommandInput = {
+        Limit: 10,
+        TableName: 'TestTable',
+        KeyConditionExpression: '#pk = :pk',
+        ExpressionAttributeNames: { '#pk': 'gsi1pk' },
+        ExpressionAttributeValues: { ':pk': { S: 'tenant1' } },
+        IndexName: 'GSI1',
+      };
+      const query = new Query(testParams, formatterWithIndex, client);
+      jest
+        .spyOn(formatterWithIndex, 'formatPartialOrderedSK')
+        .mockReturnValue('order1');
+
+      const partialSk: Partial<SK> = { orderId: 'order1' };
+      query.whereSKBeginsWith(partialSk);
+
+      // Should use the index SK name 'orderId#category', not the table SK name 'category#orderId'
+      expect(testParams.ExpressionAttributeNames).toEqual({
+        '#pk': 'gsi1pk',
+        '#sk': 'orderId#category',
+      });
+    });
+
+    it('uses table SK name in whereSKBeginsWith when IndexName is not provided', () => {
+      const formatterWithIndex = new SchemaFormatter<PK, SK, Data>(keySchemaWithIndex);
+      const testParams: CommandInput = {
+        Limit: 10,
+        TableName: 'TestTable',
+        KeyConditionExpression: '#pk = :pk',
+        ExpressionAttributeNames: { '#pk': 'pk' },
+        ExpressionAttributeValues: { ':pk': { S: 'tenant1' } },
+      };
+      const query = new Query(testParams, formatterWithIndex, client);
+      jest
+        .spyOn(formatterWithIndex, 'formatPartialOrderedSK')
+        .mockReturnValue('category1');
+
+      const partialSk: Partial<SK> = { category: 'category1' };
+      query.whereSKBeginsWith(partialSk);
+
+      // Should use the table SK name 'category#orderId'
+      expect(testParams.ExpressionAttributeNames).toEqual({
+        '#pk': 'pk',
+        '#sk': 'category#orderId',
+      });
+    });
+
+    it('uses index SK name in whereSKBetween when IndexName is provided', () => {
+      const formatterWithIndex = new SchemaFormatter<PK, SK, Data>(keySchemaWithIndex);
+      const testParams: CommandInput = {
+        Limit: 10,
+        TableName: 'TestTable',
+        KeyConditionExpression: '#pk = :pk',
+        ExpressionAttributeNames: { '#pk': 'gsi1pk' },
+        ExpressionAttributeValues: { ':pk': { S: 'tenant1' } },
+        IndexName: 'GSI1',
+      };
+      const query = new Query(testParams, formatterWithIndex, client);
+      jest
+        .spyOn(formatterWithIndex, 'formatPartialOrderedSK')
+        .mockReturnValueOnce('order1#category1')
+        .mockReturnValueOnce('order2#category1');
+
+      const sk1: Partial<SK> = { orderId: 'order1', category: 'category1' };
+      const sk2: Partial<SK> = { orderId: 'order2', category: 'category1' };
+      query.whereSKBetween(sk1, sk2);
+
+      // Should use the index SK name 'orderId#category'
+      expect(testParams.ExpressionAttributeNames).toEqual({
+        '#pk': 'gsi1pk',
+        '#sk': 'orderId#category',
+      });
+    });
+
+    it('uses index SK name in compare methods when IndexName is provided', () => {
+      const formatterWithIndex = new SchemaFormatter<PK, SK, Data>(keySchemaWithIndex);
+      const testParams: CommandInput = {
+        Limit: 10,
+        TableName: 'TestTable',
+        KeyConditionExpression: '#pk = :pk',
+        ExpressionAttributeNames: { '#pk': 'gsi1pk' },
+        ExpressionAttributeValues: { ':pk': { S: 'tenant1' } },
+        IndexName: 'GSI1',
+      };
+      const query = new Query(testParams, formatterWithIndex, client);
+      jest
+        .spyOn(formatterWithIndex, 'formatPartialOrderedSK')
+        .mockReturnValue('order1#category1');
+
+      const sk: SK = { orderId: 'order1', category: 'category1' };
+      query.whereSKGreaterThan(sk);
+
+      // Should use the index SK name 'orderId#category'
+      expect(testParams.ExpressionAttributeNames).toEqual({
+        '#pk': 'gsi1pk',
+        '#sk': 'orderId#category',
+      });
+    });
+
+    it('throws error when IndexName is provided but index is not defined in schema', () => {
+      const formatterWithIndex = new SchemaFormatter<PK, SK, Data>(keySchemaWithIndex);
+      const testParams: CommandInput = {
+        Limit: 10,
+        TableName: 'TestTable',
+        KeyConditionExpression: '#pk = :pk',
+        ExpressionAttributeNames: { '#pk': 'pk' },
+        ExpressionAttributeValues: { ':pk': { S: 'tenant1' } },
+        IndexName: 'NonExistentIndex',
+      };
+      const query = new Query(testParams, formatterWithIndex, client);
+
+      const partialSk: Partial<SK> = { category: 'category1' };
+      expect(() => query.whereSKBeginsWith(partialSk)).toThrow(
+        'Index "NonExistentIndex" is not defined in the schema'
+      );
+    });
+  });
 });

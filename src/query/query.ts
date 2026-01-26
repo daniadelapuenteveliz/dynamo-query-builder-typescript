@@ -31,10 +31,10 @@ export class Query<
     if (!this.params.ExpressionAttributeValues) {
       this.params.ExpressionAttributeValues = {};
     }
-    const skName = this.schemaFormatter.getSK()?.name ?? '';
+    const skName = this.schemaFormatter.getSKName(this.params.IndexName);
     this.params.ExpressionAttributeNames['#sk'] = skName;
 
-    const skValue = this.schemaFormatter.formatPartialOrderedSK(skparams);
+    const skValue = this.schemaFormatter.formatPartialOrderedSK(skparams, this.params.IndexName);
     if (typeof skparams.value === 'number') {
       this.params.ExpressionAttributeValues[':sk'] = {
         N: skValue.toString(),
@@ -59,7 +59,7 @@ export class Query<
     if (!this.params.ExpressionAttributeValues) {
       this.params.ExpressionAttributeValues = {};
     }
-    const skName = this.schemaFormatter.getSK()?.name ?? '';
+    const skName = this.schemaFormatter.getSKName(this.params.IndexName);
     this.params.ExpressionAttributeNames['#sk'] = skName;
     const skValue = this.schemaFormatter.formatPartialOrderedSK(sk, this.params.IndexName);
     this.params.ExpressionAttributeValues[':sk'] = {
@@ -79,10 +79,10 @@ export class Query<
     if (!this.params.ExpressionAttributeValues) {
       this.params.ExpressionAttributeValues = {};
     }
-    const skName = this.schemaFormatter.getSK()?.name ?? '';
+    const skName = this.schemaFormatter.getSKName(this.params.IndexName);
     this.params.ExpressionAttributeNames['#sk'] = skName;
-    const sk1Value = this.schemaFormatter.formatPartialOrderedSK(sk1);
-    const sk2Value = this.schemaFormatter.formatPartialOrderedSK(sk2);
+    const sk1Value = this.schemaFormatter.formatPartialOrderedSK(sk1, this.params.IndexName);
+    const sk2Value = this.schemaFormatter.formatPartialOrderedSK(sk2, this.params.IndexName);
     this.params.ExpressionAttributeValues[':low'] = {
       S: sk1Value.toString(),
     };

@@ -921,7 +921,7 @@ describe('formatting', () => {
         >(simpleSchema);
         jest
           .spyOn(formatter as any, 'assertPartialOrderSKIsCorrect')
-          .mockImplementation(() => {});
+          .mockImplementation(() => { });
         expect(() =>
           formatter.formatPartialOrderedSK({ any: 'value' } as any)
         ).toThrow('SK is not defined');
@@ -993,6 +993,105 @@ describe('formatting', () => {
       expect(() => {
         formatter.formatSKFromItem(item);
       }).toThrow();
+    });
+  });
+
+  describe('getSKName', () => {
+    const schemaWithIndex: KeySchema = {
+      pk: {
+        name: 'pk',
+        keys: ['tenantId'],
+      },
+      sk: {
+        name: 'category#orderId',
+        keys: ['category', 'orderId'],
+        separator: '#',
+      },
+      indexes: {
+        GSI1: {
+          pk: {
+            name: 'gsi1pk',
+            keys: ['tenantId'],
+          },
+          sk: {
+            name: 'orderId#category',
+            keys: ['orderId', 'category'],
+            separator: '#',
+          },
+        },
+        GSI2_NO_SK: {
+          pk: {
+            name: 'gsi2pk',
+            keys: ['tenantId'],
+          },
+        } as any,
+      },
+    };
+
+    it('returns table SK name when no indexName is provided', () => {
+      const formatter = new SchemaFormatter<any, any, any>(schemaWithIndex);
+
+      const skName = formatter.getSKName();
+
+      expect(skName).toBe('category#orderId');
+    });
+
+    it('returns index SK name when indexName is provided', () => {
+      const formatter = new SchemaFormatter<any, any, any>(schemaWithIndex);
+
+      const skName = formatter.getSKName('GSI1');
+
+      expect(skName).toBe('orderId#category');
+    });
+
+    it('throws error when indexName is provided but index is not defined', () => {
+      const formatter = new SchemaFormatter<any, any, any>(schemaWithIndex);
+
+      expect(() => formatter.getSKName('NonExistentIndex')).toThrow(
+        'Index "NonExistentIndex" is not defined in the schema'
+      );
+    });
+
+    it('throws error when indexName is provided but index has no SK', () => {
+      const formatter = new SchemaFormatter<any, any, any>(schemaWithIndex);
+
+      expect(() => formatter.getSKName('GSI2_NO_SK')).toThrow(
+        'SK is not defined in the schema'
+      );
+    });
+
+    it('returns empty string when table has no SK and no indexName is provided', () => {
+      const schemaWithoutSk: KeySchema = {
+        pk: {
+          name: 'pk',
+          keys: ['id'],
+        },
+      };
+      const formatter = new SchemaFormatter<OnlyPk, dummySk, dummyData>(
+        schemaWithoutSk
+      );
+
+      const skName = formatter.getSKName();
+
+      expect(skName).toBe('');
+    });
+
+    it('returns undefined name as empty string via getSK fallback', () => {
+      const schemaWithoutSkName: KeySchema = {
+        pk: {
+          name: 'pk',
+          keys: ['id'],
+        },
+        sk: {
+          name: undefined as any,
+          keys: ['sortKey'],
+        },
+      };
+      const formatter = new SchemaFormatter<any, any, any>(schemaWithoutSkName);
+
+      const skName = formatter.getSKName();
+
+      expect(skName).toBe('');
     });
   });
 });

@@ -180,6 +180,24 @@ export class SchemaFormatter<
   }
 
   /**
+   * Returns the SK name for the given index, or the table's SK name if no index is provided.
+   */
+  getSKName(indexName?: string): string {
+    if (indexName) {
+      const index = this.keySchema.indexes?.[indexName];
+      if (!index) {
+        throw DynamoErrorFactory.indexNotDefinedInSchema(indexName);
+      }
+      if (!index.sk) {
+        throw DynamoErrorFactory.SKNotDefinedInSchema();
+      }
+      return index.sk.name;
+    }
+    // Use getSK() to maintain compatibility with mocked tests
+    return this.getSK()?.name ?? '';
+  }
+
+  /**
    * Converts the plain item into Record<string, AttributeValue>:
    * - Generates pk and sk (if applicable) from the schema.
    * - Skips rewriting key fields unless they are listed in `preserve`.
