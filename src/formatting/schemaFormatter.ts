@@ -102,21 +102,73 @@ export class SchemaFormatter<
     }
   }
 
-  formatPartialOrderedSK(sk: Partial<SK>): string {
-    this.assertPartialOrderSKIsCorrect(sk);
-    const skKeysInSchema = this.keySchema.sk;
-    if (!skKeysInSchema) {
-      throw DynamoErrorFactory.SKNotDefinedInSchema();
+  assertPartialOrderSKWithIndexIsCorrect(sk: Partial<SK>, indexName: string): void {
+    const index = this.keySchema.indexes?.[indexName];
+    if (!index) {
+      throw DynamoErrorFactory.indexNotDefinedInSchema(indexName);
     }
-    const partialOrderedSKKeyDef = {
-      name: skKeysInSchema.name,
-      keys: Object.keys(sk),
-      separator: skKeysInSchema.separator,
-    };
-    return this.formatKey(
-      { ...sk } as ItemOf<PK, SK, DataDto>,
-      partialOrderedSKKeyDef as KeyDef<any>
-    );
+
+    const skKeysInSchema = index.sk?.keys ?? [];
+    const keysInSK = Object.keys(sk);
+
+    if (keysInSK.length === 0) {
+      throw DynamoErrorFactory.SKEmpty();
+    }
+
+    const orderedKeysInSK = keysInSK.sort((a, b) => {
+      return skKeysInSchema.indexOf(a) - skKeysInSchema.indexOf(b);
+    });
+
+    if (orderedKeysInSK[0] != skKeysInSchema[0]) {
+      throw DynamoErrorFactory.firstKeyNotIncludedInSK();
+    }
+
+    for (let i = 1; i < skKeysInSchema.length; i++) {
+      if (orderedKeysInSK.length == i) {
+        break;
+      }
+      if (orderedKeysInSK[i] !== skKeysInSchema[i]) {
+        throw DynamoErrorFactory.keyNotIncludedInSK(skKeysInSchema[i]);
+      }
+    }
+  }
+
+  formatPartialOrderedSK(sk: Partial<SK>, indexName?: string): string {
+    if (indexName) {
+      this.assertPartialOrderSKWithIndexIsCorrect(sk, indexName);
+      const index = this.keySchema.indexes?.[indexName];
+      if (!index) {
+        throw DynamoErrorFactory.indexNotDefinedInSchema(indexName);
+      }
+      const skKeysInSchema = index.sk;
+      if (!skKeysInSchema) {
+        throw DynamoErrorFactory.SKNotDefinedInSchema();
+      }
+      const partialOrderedSKKeyDef = {
+        name: skKeysInSchema.name,
+        keys: Object.keys(sk),
+        separator: skKeysInSchema.separator,
+      };
+      return this.formatKey(
+        { ...sk } as ItemOf<PK, SK, DataDto>,
+        partialOrderedSKKeyDef as KeyDef<any>
+      );
+    } else {
+      this.assertPartialOrderSKIsCorrect(sk);
+      const skKeysInSchema = this.keySchema.sk;
+      if (!skKeysInSchema) {
+        throw DynamoErrorFactory.SKNotDefinedInSchema();
+      }
+      const partialOrderedSKKeyDef = {
+        name: skKeysInSchema.name,
+        keys: Object.keys(sk),
+        separator: skKeysInSchema.separator,
+      };
+      return this.formatKey(
+        { ...sk } as ItemOf<PK, SK, DataDto>,
+        partialOrderedSKKeyDef as KeyDef<any>
+      );
+    }
   }
 
   getPK(): KeyDef<PK> {

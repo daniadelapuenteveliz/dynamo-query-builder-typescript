@@ -61,8 +61,7 @@ export class Query<
     }
     const skName = this.schemaFormatter.getSK()?.name ?? '';
     this.params.ExpressionAttributeNames['#sk'] = skName;
-
-    const skValue = this.schemaFormatter.formatPartialOrderedSK(sk);
+    const skValue = this.schemaFormatter.formatPartialOrderedSK(sk, this.params.IndexName);
     this.params.ExpressionAttributeValues[':sk'] = {
       S: skValue.toString(),
     };

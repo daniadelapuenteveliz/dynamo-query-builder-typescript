@@ -8,6 +8,7 @@ export enum ErrorCode {
   FIRST_KEY_NOT_INCLUDED_IN_SK = 'FIRST_KEY_NOT_INCLUDED_IN_SK',
   KEY_NOT_INCLUDED_IN_SK = 'KEY_NOT_INCLUDED_IN_SK',
   SK_NOT_DEFINED_IN_SCHEMA = 'SK_NOT_DEFINED_IN_SCHEMA',
+  INDEX_NOT_DEFINED_IN_SCHEMA = 'INDEX_NOT_DEFINED_IN_SCHEMA',
   SK_EMPTY = 'SK_EMPTY',
   KEY_PART_REQUIRED = 'KEY_PART_REQUIRED',
   KEY_SCHEMA_REQUIRED = 'KEY_SCHEMA_REQUIRED',
@@ -167,6 +168,12 @@ export class DynamoErrorFactory {
     return new ConfigurationError(
       ErrorCode.SK_NOT_DEFINED_IN_SCHEMA,
       'SK is not defined in the schema'
+    );
+  }
+  static indexNotDefinedInSchema(indexName: string): ConfigurationError {
+    return new ConfigurationError(
+      ErrorCode.INDEX_NOT_DEFINED_IN_SCHEMA,
+      `Index "${indexName}" is not defined in the schema`
     );
   }
   static keyNotIncludedInSK(key: string): ConfigurationError {

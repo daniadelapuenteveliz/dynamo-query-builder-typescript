@@ -35,7 +35,7 @@ export class Chain<
     public queryType: string,
     public schemaFormatter: SchemaFormatter<PK, SK, DataDto>,
     private client: DynamoDBClient
-  ) {}
+  ) { }
 
   getClient(): DynamoDBClient {
     return this.client;

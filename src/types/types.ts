@@ -104,6 +104,20 @@ export interface KeySchema {
     separator?: string;
   };
   preserve?: string[];
+  indexes?: {
+    [key: string]: {
+      pk: {
+        name: string;
+        keys: string[];
+        separator?: string;
+      };
+      sk: {
+        name: string;
+        keys: string[];
+        separator?: string;
+      };
+    };
+  };
 }
 
 // ----------------------------- aux types -----------------------------
