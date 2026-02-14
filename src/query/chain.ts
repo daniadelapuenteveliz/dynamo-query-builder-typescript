@@ -167,9 +167,14 @@ export class Chain<
   }
 
   pivot(pivot: KeyRec): Chain<PK, SK, DataDto> {
-    const startKey = this.schemaFormatter.formatItemKeysDtoAsRecord(
-      pivot as ItemKeysOf<PK, SK>
-    );
+    const startKey = this.params.IndexName
+      ? this.schemaFormatter.formatItemKeysWithIndexDtoAsRecord(
+          pivot as ItemKeysOf<PK, SK>,
+          this.params.IndexName
+        )
+      : this.schemaFormatter.formatItemKeysDtoAsRecord(
+          pivot as ItemKeysOf<PK, SK>
+        );
     this.params.ExclusiveStartKey = startKey;
     return this;
   }

@@ -1,6 +1,6 @@
 {
     "name": "dynamo-query-builder",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "A powerful TypeScript/JavaScript wrapper for creating and managing DynamoDB queries with a fluent API",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",

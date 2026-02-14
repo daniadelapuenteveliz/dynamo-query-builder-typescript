@@ -665,6 +665,46 @@ describe('Chain', () => {
       });
       expect(result).toBe(chain);
     });
+
+    it('when IndexName is set, uses formatItemKeysWithIndexDtoAsRecord and sets ExclusiveStartKey', () => {
+      const paramsWithIndex = {
+        ...params,
+        IndexName: 'team_user',
+      };
+      const chain = new Chain(
+        paramsWithIndex,
+        'query',
+        schemaFormatter,
+        client
+      );
+      const pivotItem = {
+        tenantId: 'tenant1',
+        category: 'category1',
+      };
+
+      jest
+        .spyOn(schemaFormatter, 'formatItemKeysWithIndexDtoAsRecord')
+        .mockReturnValue({
+          pk: { S: 'tenant1' },
+          sk: { S: 'idx_sk_value' },
+        });
+      const formatItemKeysDtoAsRecordSpy = jest.spyOn(
+        schemaFormatter,
+        'formatItemKeysDtoAsRecord'
+      );
+
+      const result = chain.pivot(pivotItem);
+
+      expect(
+        schemaFormatter.formatItemKeysWithIndexDtoAsRecord
+      ).toHaveBeenCalledWith(pivotItem, 'team_user');
+      expect(formatItemKeysDtoAsRecordSpy).not.toHaveBeenCalled();
+      expect(paramsWithIndex.ExclusiveStartKey).toEqual({
+        pk: { S: 'tenant1' },
+        sk: { S: 'idx_sk_value' },
+      });
+      expect(result).toBe(chain);
+    });
   });
 
   describe('filterRaw', () => {

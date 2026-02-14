@@ -225,6 +225,35 @@ export class SchemaFormatter<
   }
 
   /**
+   * Same as formatItemKeysDtoAsRecord but uses the key schema of the given index
+   * (pk/sk attribute names and key order for that index).
+   */
+  formatItemKeysWithIndexDtoAsRecord(
+    item: ItemKeysOf<PK, SK>,
+    indexName: string
+  ): Record<string, AttributeValue> {
+    const index = this.keySchema.indexes?.[indexName];
+    if (!index) {
+      throw DynamoErrorFactory.indexNotDefinedInSchema(indexName);
+    }
+    const logical: Record<string, DynamoScalar> = {};
+
+    logical[index.pk.name] = this.formatKey(
+      { ...item } as ItemOf<PK, SK, DataDto>,
+      index.pk as KeyDef<any>
+    );
+
+    if (index.sk) {
+      logical[index.sk.name] = this.formatKey(
+        { ...item } as ItemOf<PK, SK, DataDto>,
+        index.sk as KeyDef<any>
+      );
+    }
+
+    return marshall(logical, { removeUndefinedValues: true });
+  }
+
+  /**
    * Converts the plain item into Record<string, AttributeValue>:
    * - Generates pk and sk (if applicable) from the schema.
    * - Skips rewriting key fields unless they are listed in `preserve`.

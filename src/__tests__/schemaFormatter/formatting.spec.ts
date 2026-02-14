@@ -300,6 +300,80 @@ describe('formatting', () => {
     });
   });
 
+  describe('formatItemKeysWithIndexDtoAsRecord', () => {
+    type OrgPK = { organization_id: string };
+    type UserTeamSK = { user_id: string; team_id: string };
+    type DummyData = { name: string };
+
+    const schemaWithIndex: KeySchema = {
+      pk: {
+        name: 'organization_id',
+        keys: ['organization_id'],
+        separator: '#',
+      },
+      sk: {
+        name: 'user_id#team_id',
+        keys: ['user_id', 'team_id'],
+        separator: '#',
+      },
+      indexes: {
+        team_user: {
+          pk: {
+            name: 'organization_id',
+            keys: ['organization_id'],
+            separator: '#',
+          },
+          sk: {
+            name: 'team_id#user_id',
+            keys: ['team_id', 'user_id'],
+            separator: '#',
+          },
+        },
+      },
+    };
+
+    it('uses index pk and sk attribute names and key order to build record', () => {
+      const formatter = new SchemaFormatter<OrgPK, UserTeamSK, DummyData>(
+        schemaWithIndex
+      );
+      const keys: ItemKeysOf<OrgPK, UserTeamSK> = {
+        organization_id: 'org1',
+        user_id: 'u1',
+        team_id: 't1',
+      };
+
+      const record = formatter.formatItemKeysWithIndexDtoAsRecord(
+        keys,
+        'team_user'
+      );
+
+      expect(record).toEqual(
+        marshall(
+          {
+            organization_id: 'org1',
+            'team_id#user_id': 't1#u1',
+          },
+          { removeUndefinedValues: true }
+        )
+      );
+    });
+
+    it('throws when index name is not defined in schema', () => {
+      const formatter = new SchemaFormatter<OrgPK, UserTeamSK, DummyData>(
+        schemaWithIndex
+      );
+      const keys: ItemKeysOf<OrgPK, UserTeamSK> = {
+        organization_id: 'org1',
+        user_id: 'u1',
+        team_id: 't1',
+      };
+
+      expect(() =>
+        formatter.formatItemKeysWithIndexDtoAsRecord(keys, 'unknown_index')
+      ).toThrow('Index "unknown_index" is not defined in the schema');
+    });
+  });
+
   describe('formatRecordAsItemDto', () => {
     afterEach(() => {
       jest.clearAllMocks();
